@@ -35,4 +35,6 @@ routeLoader("./routes/", function(route) {
 The optional subsection parameter can be used to add additional routing sections, for example:
 routeLoader("./routes/", function(route) {}, "v2/webapp"); will result in DOMAIN/v2/webapp/ROUTE
 
+
+Microsoft Azure does not work with relative paths, so _path should be called as path.join(__dirname, 'FOLDER/')
 */

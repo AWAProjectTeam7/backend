@@ -15,7 +15,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 //---------- Set up routes here ----------
 
-routeLoader("./routes/", function(route) {
+routeLoader(path.join(__dirname, 'routes/'), function(route) {
     app.use(route.name, require(route.path));
 });
 
