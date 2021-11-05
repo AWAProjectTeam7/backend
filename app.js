@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //---------- Set up routes here ----------
 
 routeLoader(path.join(__dirname, 'routes/'), function(route) {
-    app.use(route.name, require(route.path));
+    app.use(route.URL, require(route.modulePath));
 });
 
 // catch 404 and forward to error handler
