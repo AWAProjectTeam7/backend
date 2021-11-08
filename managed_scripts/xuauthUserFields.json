@@ -1,0 +1,11 @@
+{
+    "fields": [
+        "email",
+        "name",
+        "address",
+        "city",
+        "phone",
+        "password",
+        "salt"
+    ]
+}
