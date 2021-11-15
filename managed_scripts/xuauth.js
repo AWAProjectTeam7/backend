@@ -261,7 +261,13 @@ function addCookieAndCallNext(req, res, next, sessionToken) {
     {
         //Set cookie if it's new or doesn't exist, otherwise ignore it to avoid constant refreshing on the client side
         //let cookieMaxAge = (Date.now() - sessionToken.expires);
-        res.cookie(sessionToken.name, sessionToken.value, { maxAge: sessionToken.lifeTime });
+        let cookieSettings = {
+            httpOnly: true,
+            maxAge: sessionToken.lifeTime,
+            secure: true,
+            sameSite: 'none'
+        };
+        res.cookie(sessionToken.name, sessionToken.value, cookieSettings);
     }
     //Append session token to the response; this makes it accessible for other middewares and the final handler
     res.xuauth.session = sessionToken;
