@@ -262,10 +262,10 @@ function addCookieAndCallNext(req, res, next, sessionToken) {
         //Set cookie if it's new or doesn't exist, otherwise ignore it to avoid constant refreshing on the client side
         //let cookieMaxAge = (Date.now() - sessionToken.expires);
         let cookieSettings = {
-            //httpOnly: true,
+            httpOnly: true,
             maxAge: sessionToken.lifeTime,
             secure: true,
-            sameSite: 'none'
+            //sameSite: 'none'
         };
         res.cookie(sessionToken.name, sessionToken.value, cookieSettings);
     }
