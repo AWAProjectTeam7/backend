@@ -14,7 +14,7 @@ function loadModules (searchPath="", callback=function(){}) {
 function recursiveDirectorySearch(searchPath="", callback=function(){}) {
     //Read all files - including folders - in the searchPath
     fs.readdirSync(searchPath).forEach((element) => {
-        //element returns only the file name, append the absolute path here
+        //element returns only the file name, append to the absolute path here
         let fullRouteFilePath = path.join(searchPath, element);
         //if the path points to a folder, call the function again to search it's contents.
         //this will go through all the files in the given folder, and recursively search all subfolders
