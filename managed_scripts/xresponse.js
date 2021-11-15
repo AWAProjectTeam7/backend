@@ -1,102 +1,74 @@
 //SPDX-FileCopyrightText: © 2021 Bars Margetsch <barsmargetsch@outlook.com>
 //SPDX-License-Identifier: BSD 3-Clause
 const xresponse = {
-    success: function(res, contents) {
+    success: function(res={}, contents={}) {
 		//Operation successful, pass Express response object, response contents and an optional token
+        if (contents = {})
+        {
+            contents = undefined;
+        }
         let xresponse_content = {
             status: "success",
             data: contents
         }
-        /*if (res.xuauth.session != undefined)
-        {
-            //Legacy sessionStorage:
-            //xresponse_content.data.token = token;
-            let token = res.xuauth.session;
-			res.cookie(token.name, token.value, { maxAge: token.lifeTime });
-        }*/
-        /*if (contents != null && contents != undefined && contents != "no_content")
-        {
-            for (const [key, value] of Object.entries(contents)) {
-                xresponse_content.data[key] = value;
-            }
-        }*/
         res.status(200).json(xresponse_content);
     },
     error: {
-        database: (res)=>{
+        database: (res={})=>{
+            //The server couldn't connect to the database. This is now the user's fault, but a system distruption.
             let xresponse_content = {
                 status: "fail",
-                data: {
-                    message: "Could not connect to the database. Try again later."
-                }
+                errorMessage: "Could not connect to the database. Try again later.",
             }
-            res.status(500).json(xresponse_content);
+            res.status(503).json(xresponse_content);
         },
     },
     fail: {
-        custom: (res, message)=>{
+        custom: (res={}, message="")=>{
+            //Custom fail message for non-uniform fail conditions. Note that this type returns a 200 OK HTTP Status.
             let xresponse_content = {
                 status: "fail",
-                data: {
-                    message: message
-                }
+                errorMessage: message,
             }
             res.json(xresponse_content);
         },
-        parameters: (res)=>{
+        parameters: (res={})=>{
+            //The request has incorrect or missing parameters. This is the user's fault; returns 400 BAD REQUEST
             let xresponse_content = {
                 status: "fail",
-                data: {
-                    message: "Bad Request"
-                }
+                errorMessage: "Bad Request",
             }
             res.status(400).json(xresponse_content);
         },
-        unauthorised: (res)=>{
+        unauthorised: (res={})=>{
+            //The request requires authentication and there was none provided. This is most likely from direct access to the API
+            //without a valid key: user issue
             let xresponse_content = {
                 status: "fail",
-                data: {
-                    message: "Unauthorized"
-                }
+                errorMessage: "Unauthorized",
             }
+            res.set('WWW-Authenticate', 'Basic');
             res.status(401).json(xresponse_content);
         },
-    }
+    },
+    custom_response: (res={}, status="", message={}, HTTP_StatusCode=0)=>{
+        let xresponse_content = {
+            status: status,
+            errorMessage: message,
+        }
+        if (HTTP_StatusCode <= 99  || HTTP_StatusCode == 0)
+        {
+            res.json(xresponse_content);
+        }
+        else if (HTTP_StatusCode > 100 && HTTP_StatusCode < 600)
+        {
+            res.status(HTTP_StatusCode).json(xresponse_content);
+        }
+    },
+    status_strings_internal: {
+        success: "success",
+        fail: "fail",
+        error: "error"
+    },
 }
 module.exports = xresponse;
-/* 
-This Module follows the sjson response format:
-{
-    status : "success",
-    data : {
-        
-    },
-}
-OR
-{
-    status : "fail",
-    data : {
-        message : "credentials_taken" 
-    },
-}
-OR
-{
-    status : "error",
-    data : {
-        message : "internal_database" 
-    },
-}
-
-If there is an authorization token added, it is appended into the data:{} object as "token:<token>".
-Tokens that are undefined will not be processed, this is to allow for conditional tokens (such as
-when the token has been refreshed and it is sent with the next request, otherwise this field is 
-omitted).
-Response content should be provided in a key - value format in {}, the code will iterate through them
-and append each key - value pair directly to data:{}. Providing a named object variable <key>, will append 
-the object variable directly as:
-data: { 
-    <key>:{
-        <subkey>:<subvalue>
-    }
-} 
-*/
