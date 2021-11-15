@@ -1,5 +1,5 @@
 {
 	"domain": "https://team7awa-api.azurewebsites.net/",
-	"login": "user/loginSelector",
+	"login": "users/login",
 	"template_nickname": "template_routeName"
 }
