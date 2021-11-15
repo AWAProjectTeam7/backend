@@ -16,7 +16,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 var corsOptions = {
     origin: true,
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+    credentials: true
 }
 app.use(cors(corsOptions));
 app.options('*', cors());
