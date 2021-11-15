@@ -47,7 +47,7 @@ const xresponse = {
                 status: "fail",
                 errorMessage: "Unauthorized",
             }
-            res.set('WWW-Authenticate', 'Basic');
+            //res.set('WWW-Authenticate', 'Basic');
             res.status(401).json(xresponse_content);
         },
     },
