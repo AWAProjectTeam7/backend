@@ -3,5 +3,6 @@
 	"register": "users/register",
 	"login": "users/login",
 	"logout": "users/logout",
+	"debug_verify" : "users/verif",
 	"template_nickname": "template_routeName"
 }
