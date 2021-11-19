@@ -15,7 +15,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 //---------- Set up routes here ----------
-app.locals._scriptsPath = path.join(__dirname, 'managed_scripts/');
+if (process.env.NODE_ENV == "production") {
+    console.log("Environment: production");
+}
+else
+{
+    console.log("Environment: development");
+}
+_scriptsPath = path.join(__dirname, 'managed_scripts/');
+_modelsPath = path.join(__dirname, 'models/');
 routeLoader(path.join(__dirname, 'routes/'), function(route) {
     app.use(route.URL, require(route.modulePath));
 });

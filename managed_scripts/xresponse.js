@@ -1,24 +1,45 @@
 //SPDX-FileCopyrightText: © 2021 Bars Margetsch <barsmargetsch@outlook.com>
 //SPDX-License-Identifier: BSD 3-Clause
 const xresponse = {
-    success: function(res={}, contents={}) {
-		//Operation successful, pass Express response object, response contents and an optional token
-        if (contents = {})
-        {
-            contents = undefined;
+    success: {
+        OK: (res={}, contents={}) => {
+            //Operation successful, pass Express response object, response contents and an optional token
+            if (Object.keys(contents).length === 0)
+            {
+                contents = undefined;
+            }
+            let xresponse_content = {
+                status: "success",
+                data: contents
+            }
+            res.status(200).json(xresponse_content);
+        },
+        created: (res={}, contents={}) => {
+            if (Object.keys(contents).length === 0)
+            {
+                contents = undefined;
+            }
+            let xresponse_content = {
+                status: "success",
+                data: contents
+            }
+            res.status(201).json(xresponse_content);
         }
-        let xresponse_content = {
-            status: "success",
-            data: contents
-        }
-        res.status(200).json(xresponse_content);
     },
     error: {
-        database: (res={})=>{
-            //The server couldn't connect to the database. This is now the user's fault, but a system distruption.
+        database: (res={}, err={})=>{
+            if (Object.keys(err).length === 0 || err === null)
+            {
+                err = undefined;
+            }
+            if (process.env.NODE_ENV != "development")
+            {
+                err = undefined;
+            }
             let xresponse_content = {
-                status: "fail",
-                errorMessage: "Could not connect to the database. Try again later.",
+                status: "error",
+                errorMessage: "The Database has encountered an error, and could not serve the request. It might be unavailable.",
+                internalError: err
             }
             res.status(503).json(xresponse_content);
         },

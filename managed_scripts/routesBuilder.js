@@ -37,7 +37,15 @@ function recursiveDirectorySearch(searchPath="", callback=function(){}) {
             //if the file is called "index" or "root", attach it as the default root to the domain; leave empty
             if (element == "index" || element == "root")
             {
-                routeSection = "";
+                let trimValue = routeSection.lastIndexOf('/');
+                if (trimValue == -1)
+                {
+                    routeSection = "";
+                }
+                else
+                {
+                    routeSection = routeSection.slice(0, routeSection.lastIndexOf('/'));
+                }
             }
             //adds a single slash to start the url
             routeSection = "/" + routeSection;

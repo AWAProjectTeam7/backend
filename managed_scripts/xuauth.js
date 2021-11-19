@@ -57,11 +57,11 @@ class sessionToken {
 
 //Internal settings of the middleware
 const settings = {
-    sessionTokenLenght: 64, //returns a 128 long key
+    sessionTokenLength: 64, //returns a 128 long key
     sessionTokenName: "sessid", //the name of the cookie the middleware looks for
     sessionTokenLifeTimeMS: 28800000, //the lifetime of a single token without refreshing; 8 hours (28800000) by default
     sessionTokenRefreshTimeMS: 21600000, //the time after the token can be refreshed; 6 hours (21600000) by default
-    saltLenght: 32, //returns a 64 long key
+    saltLength: 32, //returns a 64 long key
     logoutToken: "aaaabbbbccccdddd0000", //default token for logouts
     logoutTokenDate: 1 //default time for logout tokens
     //userTableFields: fs.readFileSync((__dirname+'xuauthUserFields.json')),
@@ -176,7 +176,7 @@ const sessions = {
     //Creates a new token. Returns false if not successful, or a sessionToken if it is. Expects userID.
     //Recursively tries until it has a unique token.
     create: (userID, callback) => {
-        let token = crypto.randomBytes(settings.sessionTokenLenght).toString('base64');
+        let token = crypto.randomBytes(settings.sessionTokenLength).toString('base64');
         sessions.search.token(token, (err, result) => {
             if (err)
             {
@@ -261,7 +261,13 @@ function addCookieAndCallNext(req, res, next, sessionToken) {
     {
         //Set cookie if it's new or doesn't exist, otherwise ignore it to avoid constant refreshing on the client side
         //let cookieMaxAge = (Date.now() - sessionToken.expires);
-        res.cookie(sessionToken.name, sessionToken.value, { maxAge: sessionToken.lifeTime });
+        let cookieSettings = {
+            httpOnly: true,
+            maxAge: sessionToken.lifeTime,
+            //secure: true,
+            //sameSite: 'none'
+        };
+        res.cookie(sessionToken.name, sessionToken.value, cookieSettings);
     }
     //Append session token to the response; this makes it accessible for other middewares and the final handler
     res.xuauth.session = sessionToken;
@@ -343,7 +349,7 @@ const authenticate = {
                 else if (!resultToken) //Username doesn't exist
                 {
                     //Generate a new random salt
-                    let salt = crypto.randomBytes(settings.saltLenght).toString('hex');
+                    let salt = crypto.randomBytes(settings.saltLength).toString('hex');
                     //Hash the provided password with the generated salt
                     let password = crypto.pbkdf2Sync(req.body.password.toString().trim(), salt, 100000, 64, 'sha256').toString('hex');
                     let userData = {
@@ -448,7 +454,7 @@ const authenticate = {
                         else
                         {
                             //If upload is successful, send a success message.
-                            xres.success(res);
+                            xres.success.OK(res);
                         }
                     });
                 }

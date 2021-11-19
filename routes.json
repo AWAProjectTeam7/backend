@@ -1,5 +1,14 @@
 {
 	"domain": "https://team7awa-api.azurewebsites.net/",
-	"login": "user/loginSelector",
+	"register": "register",
+	"login": "login",
+	"logout": "logout",
+    "continue_session": "continueSession",
+    "get_order_by_ID": "order/",
+    "post_order": "order/",
+    "get_cities": "public/",
+    "get_venues_by_city": "public/",
+    "get_info_and_products_by_city_venueID": "public/#/venue/",
+	"debug_verify" : "debug_test/verif",
 	"template_nickname": "template_routeName"
 }
