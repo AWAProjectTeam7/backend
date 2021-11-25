@@ -43,6 +43,22 @@ const xresponse = {
             }
             res.status(503).json(xresponse_content);
         },
+        azure: (res={}, err={})=>{
+            if (Object.keys(err).length === 0 || err === null)
+            {
+                err = undefined;
+            }
+            if (process.env.NODE_ENV != "development")
+            {
+                err = undefined;
+            }
+            let xresponse_content = {
+                status: "error",
+                errorMessage: "The Azure service has encountered an error, and could not serve the request. It might be unavailable.",
+                internalError: err
+            }
+            res.status(503).json(xresponse_content);
+        },
     },
     fail: {
         custom: (res={}, message="")=>{

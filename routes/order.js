@@ -5,7 +5,39 @@ var xres = require('../managed_scripts/xresponse');
 var uauth = require('../managed_scripts/xuauth');
 var queries = require('../models/order_query_models');
 var utils = require('../managed_scripts/xutils');
+//
+const { Validator } = require('express-json-validator-middleware')
+const validate = new Validator();
+//
 
+const get_order_schema = {
+    type: "string",
+    required: ["orderKey"],
+    properties: {
+        orderKey: {
+            type: "string",
+            minLength: 128
+        }
+    }
+};
+
+const set_order_schema = {
+    type: "object",
+    required: ["restaurantID", "orderContents"],
+    properties: {
+        restaurantID: {
+            type: "number",
+        },
+        orderContents: {
+            type: "array",
+            items: {
+                type: "object"
+            }
+        }
+    }
+};
+
+//validate({ params: get_order_schema })
 router.get('/:orderKey', function(req, res, next) {
     if (req.params.orderKey)
     {
@@ -49,6 +81,7 @@ router.get('/:orderKey', function(req, res, next) {
     }
 });
 
+//validate({ body: set_order_schema })
 router.post('/', uauth.verify, function(req, res, next) {
     utils.unique.database.loop(()=>{
         return crypto.randomBytes(64).toString('hex');

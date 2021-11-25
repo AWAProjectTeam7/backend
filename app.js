@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var routeLoader = require('./managed_scripts/routesBuilder');
 var app = express();
+require('dotenv').config();
 app.locals.siteURL = "";
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

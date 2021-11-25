@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var uauth = require("../../managed_scripts/xuauth"); //_scriptsPath + 
 var xres = require("../../managed_scripts/xresponse");
 var queries = require('../../models/public_index_models'); //_modelsPath + 
 
