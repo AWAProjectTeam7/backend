@@ -3,7 +3,7 @@ var router = express.Router();
 var xres = require("../../managed_scripts/xresponse");
 var queries = require('../../models/public_index_models'); //_modelsPath + 
 
-router.get('/', function(req, res, next) {
+router.get('/cities', function(req, res, next) {
     queries.getCities((err, result)=>{
         if (err)
         {
@@ -23,7 +23,7 @@ router.get('/', function(req, res, next) {
     });
 });
 
-router.get('/:city', function(req, res, next) {
+router.get('/cities/:city', function(req, res, next) {
     if (req.params.city)
     {
         let searchCity = req.params.city.toLowerCase();
@@ -34,17 +34,10 @@ router.get('/:city', function(req, res, next) {
             }
             else
             {
+                let venueList = [];
                 if (result.length != 0)
                 {
-                    let venueList = [];
-                    let categories = [];
-                    let categories_index = {};
                     result.forEach(element => {
-                        if (!categories.includes(element.category))
-                        {
-                            categories.push(element.category);
-                            categories_index[element.category] = [];
-                        }
                         venueList.push({
                             id: element.restaurantID,
                             name: element.name,
@@ -55,18 +48,9 @@ router.get('/:city', function(req, res, next) {
                             image: element.image,
                             category: element.category
                         });
-                        categories_index[element.category].push(venueList.length-1);
                     });
-                    let response = {
-                        venues: venueList,
-                        categoryIndexes: categories_index
-                    };
-                    xres.success.OK(res, response);
                 }
-                else
-                {
-                    xres.custom_response(res, "success", "No results.", 200);
-                }
+                xres.success.OK(res, { venues: venueList });
             }
         });
     }
@@ -76,10 +60,10 @@ router.get('/:city', function(req, res, next) {
     }
 });
 
-router.get('/:city/venue/:venueID', function(req, res, next) {
-    if (req.params.city && req.params.venueID)
+router.get('/venues/:venueID', function(req, res, next) {
+    if (req.params.venueID)
     {
-        queries.getCityVenueInfo(req.params.venueID, req.params.city, (err, result)=>{
+        queries.getVenueInfo(req.params.venueID, (err, result)=>{
             if (err)
             {
                 xres.error.database(res, err);
@@ -95,7 +79,7 @@ router.get('/:city/venue/:venueID', function(req, res, next) {
                         address: result[0].address,
                         pricing: result[0].pricing,
                         businessHours: JSON.parse(result[0].openHours),
-                        image: "",
+                        image: result[0].image,
                         category: result[0].category
                     };
                     queries.getVenueProducts(req.params.venueID, (err, productsRes)=>{
@@ -105,17 +89,10 @@ router.get('/:city/venue/:venueID', function(req, res, next) {
                         }
                         else
                         {
+                            let productList = [];
                             if (productsRes.length != 0)
                             {
-                                let productList = [];
-                                let categories = [];
-                                let categories_index = {};
                                 productsRes.forEach(element => {
-                                    if (!categories.includes(element.category))
-                                    {
-                                        categories.push(element.category);
-                                        categories_index[element.category] = [];
-                                    }
                                     productList.push({
                                         id: element.productID,
                                         name: element.name,
@@ -124,19 +101,13 @@ router.get('/:city/venue/:venueID', function(req, res, next) {
                                         image: element.image,
                                         category: element.category
                                     });
-                                    categories_index[element.category].push(productList.length-1);
                                 });
-                                let response = {
-                                    products: productList,
-                                    venue: venueData, 
-                                    productCategoryIndexes: categories_index
-                                };
-                                xres.success.OK(res, response);
                             }
-                            else
-                            {
-                                xres.custom_response(res, "success", "No results.", 200);
-                            }
+                            let response = {
+                                products: productList,
+                                venue: venueData, 
+                            };
+                            xres.success.OK(res, response);
                         }
                     });
                 }

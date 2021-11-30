@@ -2,7 +2,9 @@ var express = require('express');
 var router = express.Router();
 var uauth = require('../managed_scripts/xuauth');
 var xres = require('../managed_scripts/xresponse');
-var queries = require('../models/index_login_models');
+var queries = require('../models/user_account_models');
+var Ajv = require('ajv');
+var _ajv = new Ajv();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {

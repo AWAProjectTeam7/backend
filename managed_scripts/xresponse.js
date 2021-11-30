@@ -32,7 +32,7 @@ const xresponse = {
             {
                 err = undefined;
             }
-            if (process.env.NODE_ENV != "development")
+            if (process.env.NODE_ENV == "production")
             {
                 err = undefined;
             }
@@ -48,7 +48,7 @@ const xresponse = {
             {
                 err = undefined;
             }
-            if (process.env.NODE_ENV != "development")
+            if (process.env.NODE_ENV == "production")
             {
                 err = undefined;
             }
@@ -69,11 +69,12 @@ const xresponse = {
             }
             res.json(xresponse_content);
         },
-        parameters: (res={})=>{
+        parameters: (res={}, _validationErrors=undefined)=>{
             //The request has incorrect or missing parameters. This is the user's fault; returns 400 BAD REQUEST
             let xresponse_content = {
                 status: "fail",
                 errorMessage: "Bad Request",
+                errorContents: _validationErrors
             }
             res.status(400).json(xresponse_content);
         },
@@ -84,7 +85,7 @@ const xresponse = {
                 status: "fail",
                 errorMessage: "Unauthorized",
             }
-            res.set('WWW-Authenticate', 'Basic');
+            //res.set('WWW-Authenticate', 'Basic');
             res.status(401).json(xresponse_content);
         },
     },

@@ -92,7 +92,7 @@ const sessions = {
                         {
                             result = result[0];
                         }
-                        let searchResult = new sessionToken(result.token, result.userID, result.token_date);
+                        let searchResult = new sessionToken(result.token, result.ID, result.token_date);
                         callback(err, searchResult);
                     }
                 }
@@ -119,7 +119,7 @@ const sessions = {
                         {
                             result = result[0];
                         }
-                        let searchResult = new sessionToken(result.token, result.userID, result.token_date);
+                        let searchResult = new sessionToken(result.token, result.ID, result.token_date);
                         callback(err, searchResult);
                     }
                 }
@@ -147,7 +147,7 @@ const sessions = {
                             result = result[0];
                         }
                         let searchResult = {
-                            token: new sessionToken(result.token, result.userID, result.token_date),
+                            token: new sessionToken(result.token, result.ID, result.token_date),
                             credentials: {
                                 salt: result.salt,
                                 password: result.password
@@ -239,7 +239,7 @@ const sessions = {
             }
             else if (result)
             {
-                sessions.create(result[0].userID, (err, sessionToken)=>{
+                sessions.create(result[0].ID, (err, sessionToken)=>{
                     if (err)
                     {
                         callback(err, false);
