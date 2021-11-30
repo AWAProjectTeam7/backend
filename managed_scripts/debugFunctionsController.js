@@ -32,9 +32,12 @@ const _debugFunctionsController = {
             return false;
         }
     },
-    logAppEnvironmentState: ()=>{
+    getAppEnvironmentState: (_logStateToConsoleQ=true)=>{
         if (process.env.NODE_ENV == "production") {
-            console.log("Environment: production");
+            if (_logStateToConsoleQ)
+            {
+                console.log("Environment: production");
+            }
             return "production";
         }
         else

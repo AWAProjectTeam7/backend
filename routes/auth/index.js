@@ -52,13 +52,14 @@ const user_register_schema = {
         },
         phone: {
             type: "string",
-            maxLength: 16,
-            minLength: 8
+            minLength: 8,
+            maxLength: 16
         },
         corporate: {
             type: "boolean"
         },
-    }
+    },
+    additionalProperties: false
 };
 
 //Validation should come before uauth

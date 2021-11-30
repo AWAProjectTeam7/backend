@@ -4,13 +4,22 @@
 	"login": "auth/login",
 	"logout": "auth/logout",
     "continue_session": "continueSession",
-    "get_order_by_ID": "consumer/orders/#",
-    "post_order": "consumer/orders",
-    "get_order_history": "consumer/orders",
+
+    "get_cities": "public/cities",
+    "get_venues_by_city": "public/cities/#/venues",
+    "get_venue_and_products_by_venueID": "public/venues/#",
+
+    "get_consumer_order_by_ID": "consumer/orders/#",
+    "post_consumer_order": "consumer/orders",
+    "get_consumer_order_history": "consumer/orders",
     "get_consumer_account_data": "consumer/account",
     "post_consumer_account_data_change": "consumer/account/update",
-    "get_cities": "public/cities",
-    "get_venues_by_city": "public/cities/#",
-    "get_info_and_products_by_venueID": "public/venues/#",
+
+    "get_corporate_account_data": "corporate/account",
+    "post_corporate_account_data_change": "corporate/account/update",
+    "get_corporate_venues": "corporate/venues",
+    "post_corporate_new_venue": "corporate/venues",
+    "post_corporate_venue_data_change": "corporate/venues/update",
+    
 	"template_nickname": "template_routeName"
 }

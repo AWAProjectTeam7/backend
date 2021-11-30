@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 // load in debugHandler
 var _debugHandler = require('./managed_scripts/debugFunctionsController');
-_debugHandler.logAppEnvironmentState(); // log the environment state (production / development / ?)
+_debugHandler.getAppEnvironmentState(); // log the environment state (production / development / ?)
 // ---------- Set up routes here ----------
 routeLoader.loadModules(path.join(__dirname, 'routes/'), function(route) {
     app.use(route.URL, require(route.modulePath));

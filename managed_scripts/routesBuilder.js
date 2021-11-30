@@ -62,7 +62,7 @@ function recursiveDirectorySearch(searchPath="", callback=function(){}) {
                 }
                 element = element.split(".")[0]; //tiny performance and memory save
                 //if the file is called "index" or "root", attach it as the default root to the domain; leave empty
-                if (element == "index" || element == "root")
+                if (element.startsWith("index") || element.startsWith("root"))
                 {
                     let trimValue = routeSection.lastIndexOf('/');
                     if (trimValue == -1)

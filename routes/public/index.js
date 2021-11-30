@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var xres = require("../../managed_scripts/xresponse");
-var queries = require('../../models/public_index_models'); //_modelsPath + 
+var queries = require('../../models/public_index_models');
 
 router.get('/cities', function(req, res, next) {
     queries.getCities((err, result)=>{
@@ -23,7 +23,7 @@ router.get('/cities', function(req, res, next) {
     });
 });
 
-router.get('/cities/:city', function(req, res, next) {
+router.get('/cities/:city/venues', function(req, res, next) {
     if (req.params.city)
     {
         let searchCity = req.params.city.toLowerCase();
@@ -39,7 +39,7 @@ router.get('/cities/:city', function(req, res, next) {
                 {
                     result.forEach(element => {
                         venueList.push({
-                            id: element.restaurantID,
+                            id: element.ID,
                             name: element.name,
                             city: element.city,
                             address: element.address,
@@ -73,7 +73,7 @@ router.get('/venues/:venueID', function(req, res, next) {
                 if (result.length != 0)
                 {
                     let venueData = {
-                        id: result[0].restaurantID,
+                        id: result[0].ID,
                         name: result[0].name,
                         city: result[0].city,
                         address: result[0].address,
@@ -94,7 +94,7 @@ router.get('/venues/:venueID', function(req, res, next) {
                             {
                                 productsRes.forEach(element => {
                                     productList.push({
-                                        id: element.productID,
+                                        id: element.ID,
                                         name: element.name,
                                         price: element.price,
                                         description: element.description,

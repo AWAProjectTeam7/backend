@@ -8,29 +8,6 @@ const multer = require('multer')
 const inMemoryStorage = multer.memoryStorage();
 const singleFileUpload = multer({ storage: inMemoryStorage });
 //
-router.get('/', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-});
-
-router.post('/', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-});
-
-router.get('/:venueID', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-});
-
-router.post('/:venueID/update', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-});
-
-router.get('/:venueID/orders', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-});
-
-router.get('/:venueID/orders/:orderKey', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-});
 
 router.get('/:venueID/products', function(req, res, next) {
     //res.render('index', { title: 'Express' });
