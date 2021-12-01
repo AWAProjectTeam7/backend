@@ -1,50 +1,43 @@
 var queries = require('../models/user_account_models');
 var xres = require('./xresponse');
 
-var _expectedPermissionTag = "";
-
-const setExpectedPermissionTag = (_tag="")=>{
-    _expectedPermissionTag = _tag;
-}
-
-const checkPermission = (req, res, next) => {
-    if (res.xuauth.session.userID)
-    {
-        queries.getUserData(res.xuauth.session.userID, (err, result)=>{
-            if (err)
-            {
-                xres.error.database(res, err);
-            }
-            else
-            {
-                result = result[0];
-                let nameSpace = "";
-                if (result.corporate) //if it is true, the user is corporate
+const checkPermission = (_permissionTag) => {
+    return (req, res, next)=>{
+        if (res.xuauth.session.userID)
+        {
+            queries.getUserData(res.xuauth.session.userID, (err, result)=>{
+                if (err)
                 {
-                    nameSpace = "corporate";
-                }
-                else //if false, the user is a consumer
-                {
-                    nameSpace = "consumer";
-                }
-                if (nameSpace == _expectedPermissionTag)
-                {
-                    next();
+                    xres.error.database(res, err);
                 }
                 else
                 {
-                    xres.HTTP.fail.forbidden(res);
+                    result = result[0];
+                    let nameSpace = "";
+                    if (result.corporate) //if it is true, the user is corporate
+                    {
+                        nameSpace = "corporate";
+                    }
+                    else //if false, the user is a consumer
+                    {
+                        nameSpace = "consumer";
+                    }
+                    if (nameSpace == _permissionTag)
+                    {
+                        next();
+                    }
+                    else
+                    {
+                        xres.HTTP.fail.forbidden(res);
+                    }
                 }
-            }
-        });
-    }
-    else
-    {
-        xres.HTTP.fail.forbidden(res);
-    }
+            });
+        }
+        else
+        {
+            xres.HTTP.fail.forbidden(res);
+        }
+    };
 }
 
-module.exports = {
-    setExpectedPermissionTag,
-    checkPermission
-};
+module.exports = checkPermission;

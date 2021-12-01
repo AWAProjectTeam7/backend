@@ -6,7 +6,7 @@ var uauth = require('../../managed_scripts/xuauth');
 var queries = require('../../models/order_query_models');
 var utils = require('../../managed_scripts/xutils');
 var userPermissionsHander = require('../../managed_scripts/userPermissionsHandler');
-userPermissionsHander.setExpectedPermissionTag("consumer");
+var _routerPermissionTag = "consumer";
 var Ajv = require('ajv');
 var _ajv = new Ajv();
 //
@@ -37,7 +37,7 @@ const set_order_schema = {
     additionalProperties: false
 };
 
-router.get('/', uauth.verify, userPermissionsHander.checkPermission, function(req, res, next) {
+router.get('/', uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
     queries.getOrders(res.xuauth.session.userID, (err, orderList)=>{
         if (err)
         {
@@ -116,7 +116,7 @@ router.get('/:orderKey', function(req, res, next) {
     }
 });
 
-router.post('/', uauth.verify, userPermissionsHander.checkPermission, function(req, res, next) {
+router.post('/', uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
     var valid = _ajv.validate(set_order_schema, req.body);
     if (!valid)
     {
@@ -178,7 +178,7 @@ router.post('/', uauth.verify, userPermissionsHander.checkPermission, function(r
     }
 });
 
-router.get('/events/:orderKey', uauth.verify, userPermissionsHander.checkPermission, function(req, res, next) {
+router.get('/events/:orderKey', uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
     if (req.params.orderKey.length == 128 && req.params.orderKey)
     {
         queries.getOrderStatus(req.params.orderKey, (err, result)=>{
