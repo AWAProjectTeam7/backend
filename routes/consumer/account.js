@@ -4,11 +4,11 @@ var xres = require('../../managed_scripts/xresponse');
 var uauth = require('../../managed_scripts/xuauth');
 var queries = require('../../models/user_account_models');
 var userPermissionsHander = require('../../managed_scripts/userPermissionsHandler');
-userPermissionsHander.setExpectedPermissionTag("consumer");
+var _routerPermissionTag = "consumer";
 var Ajv = require('ajv');
 var _ajv = new Ajv();
 
-router.get('/', uauth.verify, userPermissionsHander.checkPermission, function(req, res, next) {
+router.get('/', uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
     queries.getUserData(res.xuauth.session.userID, (err, result)=>{
         if (err)
         {
@@ -80,7 +80,7 @@ const update_account_schema = {
  * database but this one is way quicker since it's reusing code. Due to the time constraint I am willing to make the trade-off
  * of this route functioning as a valid login point.
  */
-router.post('/update', uauth.login, userPermissionsHander.checkPermission, function(req, res, next) {
+router.post('/update', uauth.login, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
     var valid = _ajv.validate(update_account_schema, req.body);
     if (!valid)
     {
