@@ -7,7 +7,7 @@ var queries = require('../../../models/venue_data_models');
 var debugFunctionsController = require('../../../managed_scripts/debugFunctionsController');
 //Permissions enforcer
 var userPermissionsHander = require('../../../managed_scripts/userPermissionsHandler');
-userPermissionsHander.setExpectedPermissionTag("corporate");
+var _routerPermissionTag = "corporate";
 //Azure Blob Storage wrapper
 var blobStorage = require('../../../managed_scripts/x-azure-blob');
 //Validation
@@ -114,7 +114,7 @@ const multer = require('multer')
 const inMemoryStorage = multer.memoryStorage();
 const singleFileUpload = multer({ storage: inMemoryStorage });
 //
-router.get('/', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander.checkPermission, function(req, res, next) {
+router.get('/', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
 
     queries.getVenues(res.xuauth.session.userID, (err, result)=>{
         if (err)
@@ -144,7 +144,7 @@ router.get('/', debugFunctionsController.routeHandler, uauth.verify, userPermiss
     });
 });
 
-router.post('/', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander.checkPermission, singleFileUpload.single('image'), function(req, res, next) {
+router.post('/', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
     //let _stringBody = JSON.stringify(req.body);
     req.body.pricing = parseInt(req.body.pricing);
     req.body.categoryID = parseInt(req.body.categoryID);
@@ -193,7 +193,7 @@ router.post('/', debugFunctionsController.routeHandler, uauth.verify, userPermis
     }
 });
 
-router.get('/:venueID', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander.checkPermission, function(req, res, next) {
+router.get('/:venueID', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
     queries.getVenueInfo(req.params.venueID, (err, result)=>{
         if (err)
         {
@@ -250,7 +250,7 @@ router.get('/:venueID', debugFunctionsController.routeHandler, uauth.verify, use
     });
 });
 
-router.post('/:venueID/update', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander.checkPermission, singleFileUpload.single('image'), function(req, res, next) {
+router.post('/:venueID/update', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
     req.body.pricing = parseInt(req.body.pricing);
     req.body.categoryID = parseInt(req.body.categoryID);
     req.body.openHours = JSON.parse(req.body.openHours);
