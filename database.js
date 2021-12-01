@@ -1,16 +1,8 @@
 const mysql = require('mysql');
 const fs = require('fs');
-require('dotenv').config();
-var certificatePath = "";
-if (fs.existsSync("./.env")) {
-	certificatePath = "./certificate/DigiCertGlobalRootCA.crt.pem";
-	console.log("Environment: development\nCertificatePath: " + certificatePath);
-}
-else
-{
-	certificatePath = "D:/home/site/wwwroot/certificate/DigiCertGlobalRootCA.crt.pem";
-	console.log("Environment: production\nCertificatePath: " + certificatePath);
-}
+var path = require('path');
+
+var certificatePath = path.join(__dirname, "certificate", "DigiCertGlobalRootCA.crt.pem");
 const connection = mysql.createConnection({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER, 

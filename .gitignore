@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Azure MySQL SSL Certificate
+certificate/DigiCertGlobalRootCA.crt.pem
