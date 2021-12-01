@@ -3,7 +3,7 @@ var router = express.Router();
 var xres = require('../../managed_scripts/xresponse');
 var uauth = require('../../managed_scripts/xuauth');
 var queries = require('../../models/user_account_models');
-var userPermissionsHander = require('../../../managed_scripts/userPermissionsHandler');
+var userPermissionsHander = require('../../managed_scripts/userPermissionsHandler');
 userPermissionsHander.setExpectedPermissionTag("consumer");
 var Ajv = require('ajv');
 var _ajv = new Ajv();

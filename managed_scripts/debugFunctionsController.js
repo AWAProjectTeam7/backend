@@ -15,6 +15,7 @@ const _debugFunctionsController = {
             }
             else
             {
+                //Either 403 FORBIDDEN or 501 NOT IMPLEMENTED
                 res.status(403).send();
             }
         }

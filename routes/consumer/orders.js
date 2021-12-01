@@ -5,7 +5,7 @@ var xres = require('../../managed_scripts/xresponse');
 var uauth = require('../../managed_scripts/xuauth');
 var queries = require('../../models/order_query_models');
 var utils = require('../../managed_scripts/xutils');
-var userPermissionsHander = require('../../../managed_scripts/userPermissionsHandler');
+var userPermissionsHander = require('../../managed_scripts/userPermissionsHandler');
 userPermissionsHander.setExpectedPermissionTag("consumer");
 var Ajv = require('ajv');
 var _ajv = new Ajv();
