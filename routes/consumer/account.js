@@ -93,16 +93,23 @@ router.post('/update', uauth.login, userPermissionsHander(_routerPermissionTag),
         delete bodyFields.username;
         let accountUpdateData_columns = Object.keys(bodyFields);
         let accountUpdateData_values = Object.values(bodyFields);
-        queries.updateUserData(res.xuauth.session.userID, accountUpdateData_columns, accountUpdateData_values, (err)=>{
-            if (err)
-            {
-                xres.error.database(res, err);
-            }
-            else
-            {
-                xres.success.OK(res);
-            }
-        });
+        if (accountUpdateData_columns.length != 0)
+        {
+            queries.updateUserData(res.xuauth.session.userID, accountUpdateData_columns, accountUpdateData_values, (err)=>{
+                if (err)
+                {
+                    xres.error.database(res, err);
+                }
+                else
+                {
+                    xres.success.OK(res);
+                }
+            });
+        }
+        else
+        {
+            xres.fail.parameters(res, "No paramaters provided.");
+        }
     }
 });
 

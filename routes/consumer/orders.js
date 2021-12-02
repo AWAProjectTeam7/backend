@@ -87,6 +87,7 @@ router.get('/:orderKey', function(req, res, next) {
                         name: orderDetails.username,
                         address: orderDetails.useraddress,
                         city: orderDetails.usercity,
+                        contact: orderDetails.usercontact
                     },
                     venue: {
                         name: orderDetails.venuename,

@@ -17,9 +17,25 @@
 
     "get_corporate_account_data": "corporate/account",
     "post_corporate_account_data_change": "corporate/account/update",
+
     "get_corporate_venues": "corporate/venues",
     "post_corporate_new_venue": "corporate/venues",
-    "post_corporate_venue_data_change": "corporate/venues/update",
+    "get_corporate_venue_by_venueID": "corporate/venues/#",
+    "post_corporate_venue_data_change_by_venueID": "corporate/venues/#/update",
+    "post_corporate_venue_image_by_venueID": "corporate/venues/#/update-image",
+
+    "get_corporate_order_by_venueID": "corporate/venues/#/orders",
+    "get_corporate_orders_by_venueID_orderID": "corporate/venues/#/orders/#",
+
+    "get_corporate_venue_products_by_venueID": "corporate/venues/#/products",
+    "post_corporate_venue_product_by_venueID": "corporate/venues/#/products",
+    "post_corporate_venue_product_image_by_venueID_productID": "corporate/venues/#/products/#/image-upload",
+    "delete_corporate_venue_product_by_venueID_productID": "corporate/venues/#/products/#",
+    "post_corporate_venue_product_data_change_by_venueID_productID": "corporate/venues/#/products/#/update",
+
+    "get_corporate_venue_categories_by_venueID": "corporate/venues/#/products/categories",
+    "post_corporate_venue_category_by_venueID": "corporate/venues/#/products/categories",
+    "delete_corporate_venue_category_by_venueID_categoryID": "corporate/venues/#/products/categories/#",
     
 	"template_nickname": "template_routeName"
 }
