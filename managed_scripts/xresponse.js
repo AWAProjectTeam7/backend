@@ -63,6 +63,21 @@ const xresponse = {
     },
     service: {
         database: {
+            OK: (res={}, contents) => {
+                //Operation successful, pass Express response object, response contents and an optional token
+                let _response = {
+                    status: "success",
+                    data: contents
+                }
+                res.status(200).json(_response);
+            },
+            created: (res={}, contents) => {
+                let _response = {
+                    status: "success",
+                    data: contents
+                }
+                res.status(201).json(_response);
+            },
             error: (res={}, err={})=>{
                 let _response = {
                     status: "error",
@@ -74,6 +89,21 @@ const xresponse = {
         },
         azure: {
             blobStorage: {
+                OK: (res={}, contents) => {
+                    //Operation successful, pass Express response object, response contents and an optional token
+                    let _response = {
+                        status: "success",
+                        data: contents
+                    }
+                    res.status(200).json(_response);
+                },
+                created: (res={}, contents) => {
+                    let _response = {
+                        status: "success",
+                        data: contents
+                    }
+                    res.status(201).json(_response);
+                },
                 error: (res={}, err={})=>{
                     let _response = {
                         status: "error",

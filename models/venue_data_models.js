@@ -17,14 +17,14 @@ const queries = {
         database.query('SELECT product.ID, product.name, product.price, product.description, product.image, productCategory.name AS category FROM product, productCategory WHERE product.restaurantID=? AND productCategory.ID=product.categoryID', [venueID], callback);
     },
     updateVenueData: (venueID, _columns, _values, callback) => {
-        _recursiveUpdateLoop_safe([venueID, _columns, _values], _columns.length-1, callback);        
+        _recursiveUpdateLoop_safe("restaurant", [venueID, _columns, _values], _columns.length-1, callback);        
     },
 };
 
-function _recursiveUpdateLoop_safe (_params, _stateTransfer_index, _callback) {
+function _recursiveUpdateLoop_safe (_table, _params, _stateTransfer_index, _callback) {
     let _column = _params[1][_stateTransfer_index];
     let _value = _params[2][_stateTransfer_index];
-    database.query('UPDATE restaurant SET ??=? WHERE ID=?', [_column, _value, _params[0]], (err, result)=>{
+    database.query('UPDATE ?? SET ??=? WHERE ID=?', [_table, _column, _value, _params[0]], (err, result)=>{
         if (err)
         {
             _callback(err);

@@ -59,11 +59,10 @@ const user_register_schema = {
             type: "boolean"
         },
     },
-    additionalProperties: false
+    //additionalProperties: false
 };
 
-//Validation should come before uauth
-router.post('/register', uauth.register, function(req, res) {
+const preRegisterValidation = (req, res, next) => {
     var valid = _ajv.validate(user_register_schema, req.body);
     if (!valid)
     {
@@ -71,41 +70,41 @@ router.post('/register', uauth.register, function(req, res) {
     }
     else
     {
-        /*
-        * fix the registration models
-        * check the validation
-        */
-        let register_userinfo = {
-            userID: res.xuauth.session.userID,
-            name: req.body.customerName.toString(),
-            address: req.body.address.toString(),
-            city: req.body.address_city.toString(),
-            phone: req.body.phone.toString(),
-            corporate: !!req.body.corporate,
-        };
-        //validate the values
-        queries.registerUser(register_userinfo, (err, result)=>{
-            if (err)
-            {
-                xres.error.database(res);
-            }
-            else
-            {
-                //Registration complete, send back the realm.
-                //Auth cookie is set by the uauth middleware automatically!
-                let nameSpace = "";
-                if (register_userinfo.corporate) //if it is true, the user is corporate
-                {
-                    nameSpace = "corporate";
-                }
-                else //if false, the user is a consumer
-                {
-                    nameSpace = "consumer";
-                }
-                xres.success.created(res, { realm: nameSpace });
-            }
-        });
+        next();
     }
+};
+
+//Validation should come before uauth
+router.post('/register', preRegisterValidation, uauth.register, function(req, res) {
+    let register_userinfo = {
+        userID: res.xuauth.session.userID,
+        name: req.body.customerName.toString(),
+        address: req.body.address.toString(),
+        city: req.body.address_city.toString(),
+        phone: req.body.phone.toString(),
+        corporate: !!req.body.corporate,
+    };
+    queries.registerUser(register_userinfo, (err, result)=>{
+        if (err)
+        {
+            xres.error.database(res);
+        }
+        else
+        {
+            //Registration complete, send back the realm.
+            //Auth cookie is set by the uauth middleware automatically!
+            let nameSpace = "";
+            if (register_userinfo.corporate) //if it is true, the user is corporate
+            {
+                nameSpace = "corporate";
+            }
+            else //if false, the user is a consumer
+            {
+                nameSpace = "consumer";
+            }
+            xres.success.created(res, { realm: nameSpace });
+        }
+    });
 });
 
 router.post('/logout', uauth.logout, function(req, res) {});

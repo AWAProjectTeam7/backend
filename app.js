@@ -6,6 +6,7 @@ var logger = require('morgan');
 require('dotenv').config();
 var routeLoader = require('./managed_scripts/routesBuilder');
 var app = express();
+var cors = require('cors');
 app.locals.siteURL = "";
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -14,6 +15,13 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+var corsOptions = {
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true
+}
+app.use(cors(corsOptions));
+app.options('*', cors());
 app.use(express.static(path.join(__dirname, 'public')));
 // load in debugHandler
 var _debugHandler = require('./managed_scripts/debugFunctionsController');
@@ -29,18 +37,15 @@ _debugHandler.functionHandler(()=>{
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  //res.render('error');
+    let errorResponse = {
+        status: "error",
+        errorMessage: "The requested resource could not be found. Make sure you have requested the correct address.",
+        errorContents: {
+            code: 404,
+            message: "NOT FOUND"
+        }
+    };
+    res.status(404).send(errorResponse);
 });
 
 module.exports = app;

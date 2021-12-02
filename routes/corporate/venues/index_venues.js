@@ -3,10 +3,8 @@ var router = express.Router();
 var xres = require('../../../managed_scripts/xresponse');
 var uauth = require('../../../managed_scripts/xuauth');
 var queries = require('../../../models/venue_data_models');
-//
-var debugFunctionsController = require('../../../managed_scripts/debugFunctionsController');
 //Permissions enforcer
-var userPermissionsHander = require('../../../managed_scripts/userPermissionsHandler');
+var userPermissionsHandler = require('../../../managed_scripts/userPermissionsHandler');
 var _routerPermissionTag = "corporate";
 //Azure Blob Storage wrapper
 var blobStorage = require('../../../managed_scripts/x-azure-blob');
@@ -63,7 +61,6 @@ const set_restaurant_schema = {
 };
 const update_restaurant_schema = {
     type: "object",
-    //required: [`categoryID`, `name`, `address`, `city`, `openHours`, `pricing`, `image`],
     properties: {
         categoryID: {
             type: "number",
@@ -104,8 +101,7 @@ const update_restaurant_schema = {
                 { additionalItems: false }
             ],
             additionalProperties: false*/
-        },
-        image: { }
+        }
     },
     additionalProperties: false
 };
@@ -114,7 +110,7 @@ const multer = require('multer')
 const inMemoryStorage = multer.memoryStorage();
 const singleFileUpload = multer({ storage: inMemoryStorage });
 //
-router.get('/', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
+router.get('/', uauth.verify, userPermissionsHandler(_routerPermissionTag), function(req, res, next) {
 
     queries.getVenues(res.xuauth.session.userID, (err, result)=>{
         if (err)
@@ -144,11 +140,7 @@ router.get('/', debugFunctionsController.routeHandler, uauth.verify, userPermiss
     });
 });
 
-router.post('/', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
-    //let _stringBody = JSON.stringify(req.body);
-    req.body.pricing = parseInt(req.body.pricing);
-    req.body.categoryID = parseInt(req.body.categoryID);
-    req.body.openHours = JSON.parse(req.body.openHours);
+router.post('/', uauth.verify, userPermissionsHandler(_routerPermissionTag), function(req, res, next) {
     var valid = _ajv.validate(set_restaurant_schema, req.body);
     if (!valid)
     {
@@ -156,8 +148,7 @@ router.post('/', debugFunctionsController.routeHandler, uauth.verify, userPermis
     }
     else
     {
-        req.body.openHours = JSON.stringify(req.body.openHours);
-        let venueData = [req.body.categoryID, res.xuauth.session.userID, req.body.name, req.body.address, req.body.city, req.body.openHours, req.body.pricing, ""];
+        let venueData = [req.body.categoryID, res.xuauth.session.userID, req.body.name, req.body.address, req.body.city, JSON.stringify(req.body.openHours), req.body.pricing, ""];
         queries.addNewVenue(venueData, (err, result)=>{
             if (err)
             {
@@ -165,35 +156,13 @@ router.post('/', debugFunctionsController.routeHandler, uauth.verify, userPermis
             }
             else
             {
-                blobStorage("images", {
-                    content: req.file.buffer,
-                    contentType: req.file.mimetype,
-                    extension: req.file.originalname.split(".")[1]
-                }, (error, blobresult)=>{
-                    if (error)
-                    {
-                        xres.error.azure(res, err);
-                    }
-                    else
-                    {
-                        queries.addVenueImage(blobresult.file_URL, result.insertId, (err, _dbImageRes)=>{
-                            if (err)
-                            {
-                                xres.error.database(res, err);
-                            }
-                            else
-                            {
-                                xres.success.created(res, {venueID: result.insertId});
-                            }
-                        });
-                    }
-                });
+                xres.success.created(res, {venueID: result.insertId});
             }
         });
     }
 });
 
-router.get('/:venueID', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
+router.get('/:venueID', uauth.verify, userPermissionsHandler(_routerPermissionTag), function(req, res, next) {
     queries.getVenueInfo(req.params.venueID, (err, result)=>{
         if (err)
         {
@@ -213,34 +182,7 @@ router.get('/:venueID', debugFunctionsController.routeHandler, uauth.verify, use
                     image: result[0].image,
                     category: result[0].category
                 };
-                queries.getVenueProducts(req.params.venueID, (err, productsRes)=>{
-                    if (err)
-                    {
-                        xres.error.database(res, err);
-                    }
-                    else
-                    {
-                        let productList = [];
-                        if (productsRes.length != 0)
-                        {
-                            productsRes.forEach(element => {
-                                productList.push({
-                                    id: element.ID,
-                                    name: element.name,
-                                    price: element.price,
-                                    description: element.description,
-                                    image: element.image,
-                                    category: element.category
-                                });
-                            });
-                        }
-                        let response = {
-                            products: productList,
-                            venue: venueData, 
-                        };
-                        xres.success.OK(res, response);
-                    }
-                });
+                xres.success.OK(res, venueData);
             }
             else
             {
@@ -250,10 +192,7 @@ router.get('/:venueID', debugFunctionsController.routeHandler, uauth.verify, use
     });
 });
 
-router.post('/:venueID/update', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHander(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
-    req.body.pricing = parseInt(req.body.pricing);
-    req.body.categoryID = parseInt(req.body.categoryID);
-    req.body.openHours = JSON.parse(req.body.openHours);
+router.post('/:venueID/update', uauth.verify, userPermissionsHandler(_routerPermissionTag), function(req, res, next) {
     var valid = _ajv.validate(update_restaurant_schema, req.body);
     if (!valid)
     {
@@ -261,9 +200,7 @@ router.post('/:venueID/update', debugFunctionsController.routeHandler, uauth.ver
     }
     else
     {
-        req.body.openHours = JSON.stringify(req.body.openHours);
         let bodyFields = {...req.body};
-        //delete bodyFields.image
         let venueUpdateData_columns = Object.keys(bodyFields);
         let venueUpdateData_values = Object.values(bodyFields);
         if (venueUpdateData_columns.length != 0)
@@ -275,70 +212,41 @@ router.post('/:venueID/update', debugFunctionsController.routeHandler, uauth.ver
                 }
                 else
                 {
-                    if (req.file)
-                    {
-                        uploadImage(req, (error, blobresult)=>{
-                            if (error)
-                            {
-                                xres.error.azure(res, err);
-                            }
-                            else
-                            {
-                                queries.addVenueImage(blobresult.file_URL, req.params.venueID, (err, _dbImageRes)=>{
-                                    if (err)
-                                    {
-                                        xres.error.database(res, err);
-                                    }
-                                    else
-                                    {
-                                        xres.success.OK(res, {venueID: req.params.venueID});
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    else
-                    {
-                        xres.success.OK(res, {venueID: req.params.venueID});
-                    }
-                }
-            });
-        }
-        else if (req.file)
-        {
-            uploadImage(req, (error, blobresult)=>{
-                if (error)
-                {
-                    xres.error.azure(res, err);
-                }
-                else
-                {
-                    queries.addVenueImage(blobresult.file_URL, req.params.venueID, (err, _dbImageRes)=>{
-                        if (err)
-                        {
-                            xres.error.database(res, err);
-                        }
-                        else
-                        {
-                            xres.success.OK(res, {venueID: req.params.venueID, image: blobresult.file_URL});
-                        }
-                    });
+                    xres.success.OK(res, {venueID: req.params.venueID});
                 }
             });
         }
         else
         {
-            xres.fail.parameters(res, "No parameters given.");
+            xres.fail.parameters(res, "No paramaters provided.");
         }
     }
 });
 
-function uploadImage (req, callback) {
+router.post('/:venueID/update-image', uauth.verify, userPermissionsHandler(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
     blobStorage("images", {
         content: req.file.buffer,
         contentType: req.file.mimetype,
         extension: req.file.originalname.split(".")[1]
-    }, callback);
-}
+    }, (error, blobresult)=>{
+        if (error)
+        {
+            xres.service.azure.blobStorage.error(res, error);
+        }
+        else
+        {
+            queries.addVenueImage(blobresult.file_URL, req.params.venueID, (err, _dbImageRes)=>{
+                if (err)
+                {
+                    xres.service.database.error(res, err);
+                }
+                else
+                {
+                    xres.success.OK(res, {venueID: req.params.venueID, image: blobresult.file_URL});
+                }
+            });
+        }
+    });
+});
 
 module.exports = router;
