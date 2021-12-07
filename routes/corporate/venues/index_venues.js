@@ -124,12 +124,12 @@ router.get('/', uauth.verify, userPermissionsHandler(_routerPermissionTag), func
             {
                 result.forEach(element => {
                     venueList.push({
-                        ID: element.ID,
+                        id: element.ID,
                         name: element.name,
                         city: element.city,
                         address: element.address,
                         pricing: element.pricing,
-                        openHours: JSON.parse(element.openHours),
+                        businessHours: JSON.parse(element.openHours),
                         image: element.image,
                         category: element.category
                     });
@@ -173,12 +173,12 @@ router.get('/:venueID', uauth.verify, userPermissionsHandler(_routerPermissionTa
             if (result.length != 0)
             {
                 let venueData = {
-                    ID: result[0].ID,
+                    id: result[0].ID,
                     name: result[0].name,
                     city: result[0].city,
                     address: result[0].address,
                     pricing: result[0].pricing,
-                    openHours: JSON.parse(result[0].openHours),
+                    businessHours: JSON.parse(result[0].openHours),
                     image: result[0].image,
                     category: result[0].category
                 };

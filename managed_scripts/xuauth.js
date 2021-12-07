@@ -25,17 +25,18 @@ These columns must exist for this middleware to work. They should be linked to t
 //userID    -   the associated user's ID from the database
 //Optional parameters:
 //expires   -   unix timestamp when the token loses it's validity. If not provided calculated automatically from settings
+//payloadData - additional properties associated with the user the token belongs to
 class sessionToken {
     constructor(value, userID, expires=undefined, payloadData=undefined) {
         this.name = settings.sessionTokenName;
         this.value = value;
-        this.expires = expires || Date.now() + settings.sessionTokenLifeTimeMS;
+        this.expires = expires || Date.now() + settings.sessionTokenLifeTime;
         this.userID = userID;
         this.data = payloadData;
-        this.lifeTime = settings.sessionTokenLifeTimeMS; //Same as the settings; legacy
+        this.lifeTime = settings.sessionTokenLifeTime; //Same as the settings; legacy
         //Determines if the token is still valid; true or false
         this.valid = function () {
-            if (this.expires >= Date.now())
+            if (this.expires >= (Math.round((Date.now()/1000 + Number.EPSILON))))
             {
                 return true;
             }
@@ -46,7 +47,7 @@ class sessionToken {
         };
         //Determines if the token can be refreshed; true or false
         this.refreshAble = function () {
-            if (this.expires-settings.sessionTokenRefreshTimeMS <= Date.now())
+            if (this.expires-settings.sessionTokenRefreshTime <= (Math.round((Date.now()/1000 + Number.EPSILON))))
             {
                 return true;
             }
@@ -59,16 +60,25 @@ class sessionToken {
 };
 
 const token = {
-    verify: (token, callback)=>{
-        jwt.verify(token, process.env.XUAUTH_SECRET, (err, decoded)=>{
+    verify: (_token, callback)=>{
+        jwt.verify(_token, process.env.XUAUTH_SECRET, (err, decoded)=>{
             if (err)
             {
                 callback(err, undefined);
             }
             else
             {
-                let _sessToken = new sessionToken(token, decoded.sub, decoded.exp, decoded.data);
-                callback(undefined, _sessToken);
+                let _sessToken = new sessionToken(_token, decoded.sub, decoded.exp, decoded.data);
+                token.refresh(_sessToken, (err, sessToken)=>{
+                    if (err)
+                    {
+                        callback(err, undefined);
+                    }
+                    else if (sessToken)
+                    {
+                        callback(undefined, sessToken);
+                    }
+                });
             }
         });
     },
@@ -84,7 +94,7 @@ const token = {
                     data: payload
                 }
                 let _tokenOptions = {
-                    expiresIn: (settings.sessionTokenLifeTimeMS.toString()),
+                    expiresIn: (settings.sessionTokenLifeTime+"s").toString(),
                     subject: userID.toString(),
                     jwtid: (0).toString()
                 }
@@ -93,6 +103,29 @@ const token = {
                 callback(undefined, _sessToken);
             }
         });
+    },
+    refresh: (sessionToken, callback)=>{
+        if (sessionToken.valid() && sessionToken.refreshAble())
+        {
+            token.create(sessionToken.userID, (err, token)=>{
+                if (err)
+                {
+                    callback(err, undefined);
+                }
+                else
+                {
+                    callback(undefined, token);
+                }
+            });
+        }
+        else if (sessionToken.valid())
+        {
+            callback(undefined, sessionToken);
+        }
+        else if (!sessionToken.valid())
+        {
+            callback(true, undefined);
+        }
     }
 }
 
@@ -116,8 +149,8 @@ const AuthenticationManager = {
 const settings = {
     sessionTokenLength: 64, //returns a 128 long key
     sessionTokenName: "sessid", //the name of the cookie the middleware looks for
-    sessionTokenLifeTimeMS: 28800000, //the lifetime of a single token without refreshing; 8 hours (28800000) by default
-    sessionTokenRefreshTimeMS: 21600000, //the time after the token can be refreshed; 6 hours (21600000) by default
+    sessionTokenLifeTime: 288000, //the lifetime of a single token without refreshing; 8 hours (28800000) by default
+    sessionTokenRefreshTime: 216000, //the time after the token can be refreshed; 6 hours (21600000) by default
     saltLength: 32, //returns a 64 long key
     logoutToken: "aaaabbbbccccdddd0000", //default token for logouts
     logoutTokenDate: 1, //default time for logout tokens
@@ -128,33 +161,6 @@ const settings = {
 //function synchronously and return the specified datatypes
 const sessions = {
     search: {
-        //Search tokens based on token value. Returns undefined if there is an error / the token is not found.
-        //Returns a sessionToken object if it is found.
-        token: (token, callback) => {
-            models.findToken(token, (err, result) => {
-                if (err)
-                {
-                    console.error(err);
-                    callback(err, undefined);
-                }
-                else
-                {
-                    if (result.length == 0)
-                    {
-                        callback(err, undefined);
-                    }
-                    else
-                    {
-                        if (Array.isArray(result))
-                        {
-                            result = result[0];
-                        }
-                        let searchResult = new sessionToken(result.token, result.ID, result.token_date);
-                        callback(err, searchResult);
-                    }
-                }
-            });
-        },
         //Search tokens based on userID. Returns undefined if there is an error / the user is not found.
         //Returns a sessionToken object if it is found.
         user: (userName, callback) => {
@@ -216,75 +222,6 @@ const sessions = {
                     }
                 }
             });
-        }
-    },
-    //Updates the token in the database. Returns true or false depending on success. Expects a sessionToken object as parameter.
-    upload: (sessionToken, callback) => {
-        models.addToken(sessionToken, (err, result) => {
-            if (err)
-            {
-                console.error(err);
-                callback(err, false);
-            }
-            else
-            {
-                callback(err, true);
-            }
-        });
-    },
-    //Creates a new token. Returns false if not successful, or a sessionToken if it is. Expects userID.
-    //Recursively tries until it has a unique token.
-    create: (userID, callback) => {
-        let token = createNewToken();
-        sessions.search.token(token, (err, result) => {
-            if (err)
-            {
-                callback(err, result)
-            }
-            else if (!result)
-            {
-                let newSessionToken = new sessionToken(token, userID);
-                sessions.upload(newSessionToken, (err, success) => {
-                    if (err)
-                    {
-                        callback(err, false);
-                    }
-                    else
-                    {
-                        callback(err, newSessionToken);
-                    }
-                });
-            }
-            else
-            {
-                sessions.create(userID, callback);
-            }
-        });
-    },
-    //Validates tokens, refreshes them if they are refreshable. Returns the same sessionToken if valid, a new one if it was refreshed,
-    //or false if it expired, the last one ONLY if getNewIfExpired is set to false. If getNewIfExpired is set to true it generates
-    //a new token even if the previous one expired. This is only used for logins where this doesn't matter.
-    validate: (token, callback, getNewIfExpired=false) => {
-        if ((token.valid() && token.refreshAble()) || (!token.valid() && getNewIfExpired))
-        {
-            sessions.create(token.userID, (err, newToken)=>{
-                if (err)
-                {
-                    callback(err, newToken);
-                }
-                else
-                {
-                    callback(err, newToken);
-                }
-            });
-        }
-        else if (token.valid())
-        {
-            callback(false, token);
-        }
-        else if (!token.valid())
-        {
-            callback(false, false);
         }
     },
     //Registers a new user with only the basic user data (username, password). Expects an object with username, password and salt.

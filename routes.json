@@ -3,7 +3,7 @@
 	"register": "auth/register",
 	"login": "auth/login",
 	"logout": "auth/logout",
-    "continue_session": "continueSession",
+    "continue_session": "auth/continueSession",
 
     "get_cities": "public/cities",
     "get_venues_by_city": "public/cities/#/venues",
