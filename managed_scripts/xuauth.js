@@ -33,7 +33,7 @@ class sessionToken {
         this.expires = expires || Date.now() + settings.sessionTokenLifeTime;
         this.userID = userID;
         this.data = payloadData;
-        this.lifeTime = settings.sessionTokenLifeTime; //Same as the settings; legacy
+        this.lifeTime = settings.sessionTokenLifeTime_Cookie; //Same as the settings; legacy
         //Determines if the token is still valid; true or false
         this.valid = function () {
             if (this.expires >= (Math.round((Date.now()/1000 + Number.EPSILON))))
@@ -149,6 +149,7 @@ const AuthenticationManager = {
 const settings = {
     sessionTokenLength: 64, //returns a 128 long key
     sessionTokenName: "sessid", //the name of the cookie the middleware looks for
+    sessionTokenLifeTime_Cookie: 28800000,
     sessionTokenLifeTime: 288000, //the lifetime of a single token without refreshing; 8 hours (28800000) by default
     sessionTokenRefreshTime: 216000, //the time after the token can be refreshed; 6 hours (21600000) by default
     saltLength: 32, //returns a 64 long key
