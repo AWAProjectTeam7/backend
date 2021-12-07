@@ -39,12 +39,12 @@ router.get('/cities/:city/venues', function(req, res, next) {
                 {
                     result.forEach(element => {
                         venueList.push({
-                            id: element.ID,
+                            ID: element.ID,
                             name: element.name,
                             city: element.city,
                             address: element.address,
                             pricing: element.pricing,
-                            businessHours: JSON.parse(element.openHours),
+                            openHours: JSON.parse(element.openHours),
                             image: element.image,
                             category: element.category
                         });
@@ -73,12 +73,12 @@ router.get('/venues/:venueID', function(req, res, next) {
                 if (result.length != 0)
                 {
                     let venueData = {
-                        id: result[0].ID,
+                        ID: result[0].ID,
                         name: result[0].name,
                         city: result[0].city,
                         address: result[0].address,
                         pricing: result[0].pricing,
-                        businessHours: JSON.parse(result[0].openHours),
+                        openHours: JSON.parse(result[0].openHours),
                         image: result[0].image,
                         category: result[0].category
                     };
@@ -89,7 +89,7 @@ router.get('/venues/:venueID', function(req, res, next) {
                         }
                         else
                         {
-                            let productList = [];
+                            /*let productList = productsRes;
                             if (productsRes.length != 0)
                             {
                                 productsRes.forEach(element => {
@@ -102,9 +102,9 @@ router.get('/venues/:venueID', function(req, res, next) {
                                         category: element.category
                                     });
                                 });
-                            }
+                            }*/
                             let response = {
-                                products: productList,
+                                products: productsRes,
                                 venue: venueData, 
                             };
                             xres.success.OK(res, response);
@@ -122,6 +122,37 @@ router.get('/venues/:venueID', function(req, res, next) {
     {
         xres.fail.parameters(res);
     }
+});
+
+router.get('/venues/categories', function(req, res, next) {
+    queries.getCategories((err, result)=>{
+        if (err)
+        {
+            xres.error.database(res, err);
+        }
+        else
+        {
+            let venuePricing = [
+                {
+                    "value" : 1,
+                    "text" : "€"
+                },
+                {
+                    "value" : 2,
+                    "text" : "€€"
+                },
+                {
+                    "value" : 3,
+                    "text" : "€€€"
+                },
+                {
+                    "value" : 4,
+                    "text" : "€€€€"
+                }
+            ]
+            xres.success.OK(res, { venueCategories: result , venuePricing: venuePricing});
+        }
+    });
 });
 
 module.exports = router;

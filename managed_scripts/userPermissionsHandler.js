@@ -3,35 +3,17 @@ var xres = require('./xresponse');
 
 const checkPermission = (_permissionTag) => {
     return (req, res, next)=>{
-        if (res.xuauth.session.userID)
+        if (res.xuauth.session.data.corporate) //if it is true, the user is corporate
         {
-            queries.getUserData(res.xuauth.session.userID, (err, result)=>{
-                if (err)
-                {
-                    xres.error.database(res, err);
-                }
-                else
-                {
-                    result = result[0];
-                    let nameSpace = "";
-                    if (result.corporate) //if it is true, the user is corporate
-                    {
-                        nameSpace = "corporate";
-                    }
-                    else //if false, the user is a consumer
-                    {
-                        nameSpace = "consumer";
-                    }
-                    if (nameSpace == _permissionTag)
-                    {
-                        next();
-                    }
-                    else
-                    {
-                        xres.HTTP.fail.forbidden(res);
-                    }
-                }
-            });
+            nameSpace = "corporate";
+        }
+        else //if false, the user is a consumer
+        {
+            nameSpace = "consumer";
+        }
+        if (nameSpace == _permissionTag)
+        {
+            next();
         }
         else
         {

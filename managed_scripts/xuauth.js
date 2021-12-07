@@ -3,6 +3,8 @@ const crypto = require('crypto');
 const models = require('./xuauth_models');
 //Response handling script
 const xres = require('./xresponse');
+//Json Web Token utility - npm install jsonwebtoken
+const jwt = require('jsonwebtoken');
 
 /* EXPECTED USER TABLE LAYOUT:
 These columns must exist for this middleware to work. They should be linked to the user accounts if not already.
@@ -24,11 +26,12 @@ These columns must exist for this middleware to work. They should be linked to t
 //Optional parameters:
 //expires   -   unix timestamp when the token loses it's validity. If not provided calculated automatically from settings
 class sessionToken {
-    constructor(value, userID, expires=undefined) {
+    constructor(value, userID, expires=undefined, payloadData=undefined) {
         this.name = settings.sessionTokenName;
         this.value = value;
         this.expires = expires || Date.now() + settings.sessionTokenLifeTimeMS;
         this.userID = userID;
+        this.data = payloadData;
         this.lifeTime = settings.sessionTokenLifeTimeMS; //Same as the settings; legacy
         //Determines if the token is still valid; true or false
         this.valid = function () {
@@ -55,6 +58,60 @@ class sessionToken {
     }
 };
 
+const token = {
+    verify: (token, callback)=>{
+        jwt.verify(token, process.env.XUAUTH_SECRET, (err, decoded)=>{
+            if (err)
+            {
+                callback(err, undefined);
+            }
+            else
+            {
+                let _sessToken = new sessionToken(token, decoded.sub, decoded.exp, decoded.data);
+                callback(undefined, _sessToken);
+            }
+        });
+    },
+    create: (userID, callback)=>{
+        sessions.getPayload(userID, (err, payload)=>{
+            if (err)
+            {
+                callback(err, undefined);
+            }
+            else
+            {
+                let _tokenPayload = {
+                    data: payload
+                }
+                let _tokenOptions = {
+                    expiresIn: (settings.sessionTokenLifeTimeMS.toString()),
+                    subject: userID.toString(),
+                    jwtid: (0).toString()
+                }
+                let token = jwt.sign(_tokenPayload, process.env.XUAUTH_SECRET, _tokenOptions);
+                let _sessToken = new sessionToken(token, userID, _tokenOptions.expiresIn, payload);
+                callback(undefined, _sessToken);
+            }
+        });
+    }
+}
+
+const AuthenticationManager = {
+    _tokenBlackList: [],
+    BlackList: {
+        search: (token)=>{
+            //placeholder
+            return true;
+        },
+        add: (token)=>{
+
+        },
+        _initialise: ()=>{
+
+        }
+    }
+};
+
 //Internal settings of the middleware
 const settings = {
     sessionTokenLength: 64, //returns a 128 long key
@@ -63,8 +120,8 @@ const settings = {
     sessionTokenRefreshTimeMS: 21600000, //the time after the token can be refreshed; 6 hours (21600000) by default
     saltLength: 32, //returns a 64 long key
     logoutToken: "aaaabbbbccccdddd0000", //default token for logouts
-    logoutTokenDate: 1 //default time for logout tokens
-    //userTableFields: fs.readFileSync((__dirname+'xuauthUserFields.json')),
+    logoutTokenDate: 1, //default time for logout tokens
+    addtionalProperties: ["corporate"]
 };
 
 //The internal query API of the middleware, modes and queries can be switched out to anything as long as they still
@@ -147,10 +204,12 @@ const sessions = {
                             result = result[0];
                         }
                         let searchResult = {
-                            token: new sessionToken(result.token, result.ID, result.token_date),
+                            //token: createNewToken(result.ID),
                             credentials: {
                                 salt: result.salt,
-                                password: result.password
+                                password: result.password,
+                                userID: result.ID,
+                                tokenID: result.token_ID
                             }
                         };
                         callback(err, searchResult);
@@ -176,7 +235,7 @@ const sessions = {
     //Creates a new token. Returns false if not successful, or a sessionToken if it is. Expects userID.
     //Recursively tries until it has a unique token.
     create: (userID, callback) => {
-        let token = crypto.randomBytes(settings.sessionTokenLength).toString('base64');
+        let token = createNewToken();
         sessions.search.token(token, (err, result) => {
             if (err)
             {
@@ -231,15 +290,14 @@ const sessions = {
     //Registers a new user with only the basic user data (username, password). Expects an object with username, password and salt.
     //Returns false if unsuccessful, or a sessionToken if successful.
     register: (userData, callback) => {
-        models.registerUser(userData, (err, result)=>{
+        models.registerUser(userData, (err, userID)=>{
             if (err)
             {
-                console.error(err);
                 callback(err, false);
             }
-            else if (result)
+            else if (userID)
             {
-                sessions.create(result[0].ID, (err, sessionToken)=>{
+                token.create(userID, (err, sessionToken)=>{
                     if (err)
                     {
                         callback(err, false);
@@ -249,6 +307,19 @@ const sessions = {
                         callback(err, sessionToken);
                     }
                 });
+            }
+        });
+    },
+    getPayload: (userID, callback)=>{
+        models.AdditionalProperties(userID, settings.addtionalProperties, (err, result)=>{
+            if (err)
+            {
+                callback(err, undefined);
+            }
+            else
+            {
+                result = result[0];
+                callback(undefined, result);
             }
         });
     }
@@ -273,6 +344,13 @@ function addCookieAndCallNext(req, res, next, sessionToken) {
     res.xuauth.session = sessionToken;
     next();
 }
+
+const setAdditionalProperties = (_properties=[])=>{
+    if (_properties.length != 0)
+    {
+        settings.addtionalProperties = _properties;
+    }
+};
 
 //These functions are exposed as the public middleware functions and can be used in routes
 const authenticate = {
@@ -299,21 +377,17 @@ const authenticate = {
                     //Compare the password hash of the request to the one in the database; throw 401 - Unauthorized if the don't match
                     if (result.credentials.password == providedPassword)
                     {
-                        //Validate the token in the database, create a new one is there is none valid
-                        //This is used to make sure repeated login attempts return the same token while it is valid.
-                        //Note the TRUE flag set at the end, this treats expired token as still refreshable, generating a new token
-                        //if the old one expired.
-                        sessions.validate(result.token, (err, sessionToken) => {
+                        //Generates a new token on every login
+                        token.create(result.credentials.userID, (err, token)=>{
                             if (err)
                             {
-                                xres.error.database(res);
+                                xres.service.database.error(res, err);
                             }
                             else
                             {
-                                //Successful login, continue to next middleware in chain
-                                addCookieAndCallNext(req, res, next, sessionToken);
+                                addCookieAndCallNext(req, res, next, token);
                             }
-                        }, true);
+                        });
                     }
                     else
                     {
@@ -391,34 +465,14 @@ const authenticate = {
         {
             //Convienent
             let sessionTokenValue = req.cookies[settings.sessionTokenName];
-            //Search for the token in the database and grab the relate token information along with the associated userID
-            sessions.search.token(sessionTokenValue, (err, resultToken)=>{
+            token.verify(sessionTokenValue, (err, sessionToken)=>{
                 if (err)
                 {
-                    xres.error.database(res);
-                }
-                else if (resultToken)
-                {
-                    //Token exists in the database; verify if it is valid or not & refresh it if possible.
-                    sessions.validate(resultToken, (err, sessionToken) => {
-                        if (err)
-                        {
-                            xres.error.database(res);
-                        }
-                        else if (sessionToken)
-                        {
-                            //Successful authentication, continue to next middleware in chain
-                            addCookieAndCallNext(req, res, next, sessionToken);
-                        }
-                        else
-                        {
-                            xres.fail.unauthorised(res);
-                        }
-                    });
+                    xres.fail.unauthorised(res);
                 }
                 else
                 {
-                    xres.fail.unauthorised(res);
+                    addCookieAndCallNext(req, res, next, sessionToken);
                 }
             });
         }
@@ -429,45 +483,9 @@ const authenticate = {
     },
     //Manual logout function. Expects a sessionToken in a cookie along with the username in req body. Destroys the sessionToken
     //stored in the database, but does not updates the client side cookie. Returns generic success message if sucessful.
+    //DISABLED UNTIL BLACKLISTING IS UP
     logout: (req, res, next) => {
-        //Validates if the session cookie and username are set; throws Bad Request if not.
-        if (req.cookies[settings.sessionTokenName] != undefined && req.body.username != undefined)
-        {
-            let sessionTokenValue = req.cookies[settings.sessionTokenName];
-            let username = req.body.username;
-            //Search for username and retreive their token information
-            sessions.search.user(username, (err, resultToken)=>{
-                if (err)
-                {
-                    xres.error.database(res);
-                }
-                else if (resultToken && resultToken.value == sessionTokenValue) //Username found and the session token matches the one in the database
-                {
-                    //Create a default logout token
-                    let logoutToken = new sessionToken(settings.logoutToken, resultToken.userID, settings.logoutTokenDate);
-                    //Upload token to the database
-                    sessions.upload(logoutToken, (err, result)=>{
-                        if (err)
-                        {
-                            xres.error.database(res);
-                        }
-                        else
-                        {
-                            //If upload is successful, send a success message.
-                            xres.success.OK(res);
-                        }
-                    });
-                }
-                else //Username and/or the session token does not match the one in the database
-                {
-                    xres.fail.unauthorised(res);
-                }
-            });
-        }
-        else
-        {
-            xres.fail.parameters(res);
-        }
+        xres.HTTP.error.notImplemented(res);
     }
 };
 

@@ -12,6 +12,9 @@ const queries = {
     },
     getCities: (callback) => {
         database.query('SELECT restaurant.city FROM restaurant GROUP BY restaurant.city', callback);
+    },
+    getCategories: (callback) => {
+        database.query('SELECT * FROM restaurantcategory', callback);
     }
 };
 

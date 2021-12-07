@@ -8,7 +8,7 @@ const queries = {
         database.query('SELECT order.orderID, order.received_date, order.complete_date, order.cost, order.status, restaurant.name, restaurant.image FROM mydb.order, restaurant, user WHERE user.ID=? AND mydb.order.restaurantID=restaurant.ID AND mydb.order.userID=user.ID', [userID], callback);
     },
     addOrder: (order={}, callback) => {
-        database.query('INSERT INTO mydb.order (orderID, userID, restaurantID, received_date, status, cost, contents) VALUES(?, ?, ?, ?, ?, ?, ?);', [order.orderID, order.userID, order.restaurantID, order.date, order.status, order.cost, JSON.stringify(order.contents)], callback);
+        database.query('INSERT INTO mydb.order (orderID, userID, restaurantID, received_date, status, cost, contents) VALUES(?, ?, ?, ?, ?, ?, ?);', [order.orderID, order.userID, order.restaurantID, order.received_date, order.status, order.cost, JSON.stringify(order.contents)], callback);
     },
     checkIfOrderExists: (orderID, callback) => {
         database.query('SELECT COUNT(orderID) AS matching_orders FROM mydb.order WHERE orderID=?', [orderID], callback);

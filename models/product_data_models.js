@@ -6,7 +6,7 @@ const queries = {
     },
     addNewProduct: (venueID, productData, callback)=>{
         //`restaurantID`, `categoryID`, `name`, `price`, `description`, `image`
-        database.query('INSERT INTO product (restaurantID, categoryID, name, price, description, image) VALUES (?,?,?,?,?,?)', [venueID, productData.categoryID, productData.name, productData.price, productData.description, ""], callback);
+        database.query('INSERT INTO product (restaurantID, categoryID, name, price, description, image) VALUES (?,?,?,?,?,?)', [venueID, productData.categoryID, productData.name, productData.price, productData.description, "https://foodservicestorage.blob.core.windows.net/images/default_image_01.png"], callback);
     },
     addProductImage: (imageURL, productID, venueID, callback) => {
         database.query('UPDATE product SET image=? WHERE ID=? AND restaurantID=?', [imageURL, productID, venueID], callback);

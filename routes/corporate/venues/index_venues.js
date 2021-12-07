@@ -38,8 +38,8 @@ const set_restaurant_schema = {
         },
         pricing: {
             type: "number",
-            minimum: 0,
-            maximum: 3,
+            minimum: 1,
+            maximum: 4,
         },
         openHours: {
             type: "object",
@@ -84,8 +84,8 @@ const update_restaurant_schema = {
         },
         pricing: {
             type: "number",
-            minimum: 0,
-            maximum: 3,
+            minimum: 1,
+            maximum: 4,
         },
         openHours: {
             type: "object",
@@ -124,12 +124,12 @@ router.get('/', uauth.verify, userPermissionsHandler(_routerPermissionTag), func
             {
                 result.forEach(element => {
                     venueList.push({
-                        id: element.ID,
+                        ID: element.ID,
                         name: element.name,
                         city: element.city,
                         address: element.address,
                         pricing: element.pricing,
-                        businessHours: JSON.parse(element.openHours),
+                        openHours: JSON.parse(element.openHours),
                         image: element.image,
                         category: element.category
                     });
@@ -148,7 +148,7 @@ router.post('/', uauth.verify, userPermissionsHandler(_routerPermissionTag), fun
     }
     else
     {
-        let venueData = [req.body.categoryID, res.xuauth.session.userID, req.body.name, req.body.address, req.body.city, JSON.stringify(req.body.openHours), req.body.pricing, ""];
+        let venueData = [req.body.categoryID, res.xuauth.session.userID, req.body.name, req.body.address, req.body.city, JSON.stringify(req.body.openHours), req.body.pricing, "https://foodservicestorage.blob.core.windows.net/images/default_image_01.png"];
         queries.addNewVenue(venueData, (err, result)=>{
             if (err)
             {
@@ -173,12 +173,12 @@ router.get('/:venueID', uauth.verify, userPermissionsHandler(_routerPermissionTa
             if (result.length != 0)
             {
                 let venueData = {
-                    id: result[0].ID,
+                    ID: result[0].ID,
                     name: result[0].name,
                     city: result[0].city,
                     address: result[0].address,
                     pricing: result[0].pricing,
-                    businessHours: JSON.parse(result[0].openHours),
+                    openHours: JSON.parse(result[0].openHours),
                     image: result[0].image,
                     category: result[0].category
                 };
@@ -201,6 +201,7 @@ router.post('/:venueID/update', uauth.verify, userPermissionsHandler(_routerPerm
     else
     {
         let bodyFields = {...req.body};
+        bodyFields.openHours = JSON.stringify(bodyFields.openHours);
         let venueUpdateData_columns = Object.keys(bodyFields);
         let venueUpdateData_values = Object.values(bodyFields);
         if (venueUpdateData_columns.length != 0)

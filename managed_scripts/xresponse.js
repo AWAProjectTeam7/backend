@@ -60,6 +60,15 @@ const xresponse = {
                 res.status(403).json(_response);
             },
         },
+        error: {
+            notImplemented: (res={})=>{
+                let _response = {
+                    status: "error",
+                    errorMessage: "Not Implemented",
+                }
+                res.status(501).json(_response);
+            },
+        },
     },
     service: {
         database: {

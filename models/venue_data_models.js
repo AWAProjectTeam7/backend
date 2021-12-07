@@ -38,7 +38,7 @@ function _recursiveUpdateLoop_safe (_table, _params, _stateTransfer_index, _call
             }
             else
             {
-                _recursiveUpdateLoop_safe(_params, _stateTransfer_index, _callback);
+                _recursiveUpdateLoop_safe(_table, _params, _stateTransfer_index, _callback);
             }
         }
     });

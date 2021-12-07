@@ -12,9 +12,9 @@ var _ajv = new Ajv();
 //
 const set_order_schema = {
     type: "object",
-    required: ["restaurantID", "orderContents"],
+    required: ["venueID", "orderContents"],
     properties: {
-        restaurantID: {
+        venueID: {
             type: "number",
         },
         orderContents: {
@@ -30,7 +30,7 @@ const set_order_schema = {
                         type: "number"
                     },
                 },
-                additionalItems: false
+                additionalProperties: false
             }
         }
     },
@@ -144,7 +144,7 @@ router.post('/', uauth.verify, userPermissionsHander(_routerPermissionTag), func
                     {
                         let orderTotal = 0;
                         result.forEach(element => {
-                            let _id = orderContents.findIndex(_element => _element.productID == element.productID);
+                            let _id = orderContents.findIndex(_element => _element.productID == element.ID);
                             orderContents[_id].name = element.name;
                             orderContents[_id].price = element.price;
                             orderTotal += orderContents[_id].price *  orderContents[_id].quantity;
@@ -152,10 +152,10 @@ router.post('/', uauth.verify, userPermissionsHander(_routerPermissionTag), func
                         let orderDetails = {
                             orderID: value,
                             userID: res.xuauth.session.userID,
-                            restaurantID: req.body.restaurantID,
+                            restaurantID: req.body.venueID,
                             received_date: Date.now(),
                             status: 1,
-                            cost: orderTotal,
+                            cost: Math.round((orderTotal + Number.EPSILON) * 100) / 100,
                             contents: orderContents,
                         };
                         queries.addOrder(orderDetails, (err, result)=>{
