@@ -201,7 +201,7 @@ router.delete('/:venueID/products/categories/:categoryID', uauth.verify, userPer
     });
 });
 
-router.get('/:venueID/products/:productID/image-upload', uauth.verify, userPermissionsHandler(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
+router.post('/:venueID/products/:productID/image-upload', uauth.verify, userPermissionsHandler(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
     blobStorage("images", {
         content: req.file.buffer,
         contentType: req.file.mimetype,
