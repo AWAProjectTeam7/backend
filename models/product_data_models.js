@@ -17,6 +17,9 @@ const queries = {
     getCategories: (venueID, callback) => {
         database.query('SELECT ID, name FROM productcategory WHERE restaurantID=?', [venueID], callback);
     },
+    getCategoryScope: (venueID, categoryID, callback) => {
+        database.query('SELECT ID, name FROM productcategory WHERE restaurantID=? AND ID=?', [venueID, categoryID], callback);
+    },
     addCategory: (venueID, categoryName, callback) => {
         database.query('INSERT INTO productCategory (restaurantID, name) VALUES (?,?)', [venueID, categoryName], callback);
     },

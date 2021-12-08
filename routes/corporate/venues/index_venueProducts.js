@@ -94,22 +94,36 @@ router.get('/:venueID/products', uauth.verify, userPermissionsHandler(_routerPer
 });
 
 router.post('/:venueID/products', uauth.verify, userPermissionsHandler(_routerPermissionTag), function(req, res, next) {
-    //check if category ID is valid within the venue's scope
     var valid = _ajv.validate(set_product_schema, req.body);
     if (!valid)
     {
         xres.fail.parameters(res, _ajv.errorsText(_ajv.errors));
     }
     else
-    {
-        queries.addNewProduct(req.params.venueID, req.body, (err, result)=>{
+    {   queries.getCategoryScope(req.params.venueID, req.body.categoryID, (err, _result)=>{
             if (err)
             {
                 xres.service.database.error(res, err);
             }
             else
             {
-                xres.service.database.created(res, {productID: result.insertId});
+                if (_result.length != 0)
+                {
+                    queries.addNewProduct(req.params.venueID, req.body, (err, result)=>{
+                        if (err)
+                        {
+                            xres.service.database.error(res, err);
+                        }
+                        else
+                        {
+                            xres.service.database.created(res, {productID: result.insertId});
+                        }
+                    });
+                }
+                else
+                {
+                    xres.HTTP.fail.parameters(res, "Category does not exist.");
+                }
             }
         });
     }

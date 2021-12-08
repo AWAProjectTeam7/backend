@@ -559,6 +559,7 @@ URL params: `venueID`
 ##### POST
 Request:
 `corporate/venues/9/update`
+All fields used at creation can be modified with the appropriate values.
 ```JSON
 {
     "name":"API TEST 1 documentation example"
@@ -587,6 +588,12 @@ Request:
 
 This should be done from a Form, with type `multipart/form-data`, and should only contain a single field for a single file.
 
+Request:
+```JSON
+{
+    "image" : <file>
+}
+```
 Response:
 ```JSON
 {
@@ -756,10 +763,20 @@ Request:
 
 This should be done from a Form, with type `multipart/form-data`, and should only contain a single field for a single file.
 
+Request:
+```JSON
+{
+    "image" : <file>
+}
+```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "productID": "9",
+        "image": "https://foodservicestorage.blob.core.windows.net/images/e52131d0-583d-11ec-af96-710ae7a2571c.png"
+    }
 }
 ```
 
@@ -771,16 +788,13 @@ route ID: `delete_corporate_venue_product_by_venueID_productID`
 URL params: `venueID`, `productID`
 
 ##### DELETE
-Request:
-```JSON
-{
-    
-}
-```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "productID": "9"
+    }
 }
 ```
 
@@ -793,15 +807,19 @@ URL params: `venueID`, `productID`
 
 ##### POST
 Request:
+All fields used at creation can be modified with the appropriate values.
 ```JSON
 {
-    
+    "price":50
 }
 ```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "productID": "1"
+    }
 }
 ```
 
@@ -815,16 +833,23 @@ route ID: `get_corporate_venue_categories_by_venueID`
 URL params: `venueID`
 
 ##### GET
-Request:
-```JSON
-{
-    
-}
-```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "categories": [
+            {
+                "ID": 1,
+                "name": "Category 1"
+            },
+            {
+                "ID": 2,
+                "name": "Category 2"
+            },
+            ...
+        ]
+    }
 }
 ```
 
@@ -839,13 +864,16 @@ URL params: `venueID`
 Request:
 ```JSON
 {
-    
+    "name":"test category 5"
 }
 ```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "categoryID": 19
+    }
 }
 ```
 
@@ -857,15 +885,12 @@ route ID: `delete_corporate_venue_category_by_venueID_categoryID`
 URL params: `venueID`
 
 ##### DELETE
-Request:
-```JSON
-{
-    
-}
-```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "categoryID": 19
+    }
 }
 ```
