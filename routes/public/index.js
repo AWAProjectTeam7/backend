@@ -89,7 +89,7 @@ router.get('/venues/:venueID', function(req, res, next) {
                         }
                         else
                         {
-                            let productList = productsRes;
+                            let productList = [];
                             if (productsRes.length != 0)
                             {
                                 productsRes.forEach(element => {

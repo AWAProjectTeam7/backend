@@ -302,7 +302,8 @@ Response:
                     "completedDate": null,
                     "status": 1
                 }
-            }
+            },
+            ...
         ]
     }
 }
@@ -328,7 +329,8 @@ Request:
         {
             "productID":8,
             "quantity":2
-        }
+        },
+        ...
     ]
 }
 ```
@@ -389,7 +391,8 @@ Response:
                 "price": 5,
                 "quantity": 2,
                 "productID": 3
-            }
+            },
+            ...
         ]
     }
 }
@@ -533,17 +536,15 @@ URL params: `venueID`
 Response:
 ```JSON
 {
-    {
-        "status": "success",
-        "data": {
-            "ID": 9,
-            "name": "API TEST 1",
-            "city": "Oulu",
-            "address": "test",
-            "pricing": 2,
-            "businessHours": {...},
-            "category": "Buffet"
-        }
+    "status": "success",
+    "data": {
+        "ID": 9,
+        "name": "API TEST 1",
+        "city": "Oulu",
+        "address": "test",
+        "pricing": 2,
+        "businessHours": {...},
+        "category": "Buffet"
     }
 }
 ```
@@ -600,23 +601,44 @@ Response:
 ## Orders
 
 ### Get list of orders associated with the specified venue
-URL: `auth/register`
+URL: `corporate/venues/#/orders`
 
 route ID: `get_corporate_order_by_venueID`
 
-URL params: `corporate/venues/#/orders`
+URL params: `venueID`
 
 ##### GET
-Request:
-```JSON
-{
-    
-}
-```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "orders": [
+            {
+                "orderID": "0967da1c642f0f705c295d0bfd72360e448d229bc10e245245c99b9a9da492cfae29b8cfff77d1495d0f6c5872c1a7d94a3fae5e86897119d5db58f51809f4e7",
+                "received_date": 1638484389294,
+                "complete_date": null,
+                "cost": 49.45,
+                "status": 1,
+                "customerName": "Example Customer 02",
+                "customerAddress": "Example Address 25",
+                "customerCity": "Oulu",
+                "customerContact": 449635662
+            },
+            {
+                "orderID": "8bbc08eafb33eb2ee3ac9ebaf138324684affe30d4c5a5adab0e941f12cf5150d0be54a218d1c627e295d643ddad4452106e00951b189756fdfdbcb4ca645575",
+                "received_date": 1638971700637,
+                "complete_date": null,
+                "cost": 39.45,
+                "status": 1,
+                "customerName": "Example Customer 02",
+                "customerAddress": "Example Address 25",
+                "customerCity": "Oulu",
+                "customerContact": 449635662
+            },
+            ...
+        ]
+    }
 }
 ```
 
@@ -628,16 +650,42 @@ route ID: `get_corporate_orders_by_venueID_orderID`
 URL params: `venueID`, `orderKey`
 
 ##### GET
-Request:
-```JSON
-{
-    
-}
-```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "orders": {
+            "customer": {
+                "name": "Example Customer 02",
+                "address": "Example Address 25",
+                "city": "Oulu",
+                "contact": 449635662
+            },
+            "details": {
+                "total": 49.45,
+                "receivedDate": 1638484389294,
+                "estimatedDate": null,
+                "completedDate": null,
+                "status": 1
+            },
+            "contents": [
+                {
+                    "name": "Example product 2",
+                    "price": 7.89,
+                    "quantity": 5,
+                    "productID": 2
+                },
+                {
+                    "name": "Example product 3",
+                    "price": 5,
+                    "quantity": 2,
+                    "productID": 3
+                },
+                ...
+            ]
+        }
+    }
 }
 ```
 
@@ -651,16 +699,21 @@ route ID: `get_corporate_venue_products_by_venueID`
 URL params: `venueID`
 
 ##### GET
-Request:
-```JSON
-{
-    
-}
-```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": [
+        {
+            "ID": 1,
+            "name": "Example product 1",
+            "price": 15.36,
+            "description": "Example Product Description",
+            "image": "https://foodservicestorage.blob.core.windows.net/images/2f086490-4e42-11ec-a285-c330597f4b6c.png",
+            "category": "Category 1"
+        },
+        ...
+    ]
 }
 ```
 
@@ -669,19 +722,25 @@ URL: `corporate/venues/#/products`
 
 route ID: `post_corporate_venue_product_by_venueID`
 
-URL params: `none`
+URL params: `venueID`
 
 ##### POST
 Request:
 ```JSON
 {
-    
+    "categoryID":2,
+    "name":"test product",
+    "price":23.56,
+    "description":"test product"
 }
 ```
 Response:
 ```JSON
 {
-    
+    "status": "success",
+    "data": {
+        "productID": 9
+    }
 }
 ```
 
