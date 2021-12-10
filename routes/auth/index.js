@@ -110,7 +110,16 @@ router.post('/register', preRegisterValidation, uauth.register, function(req, re
 router.post('/logout', uauth.logout, function(req, res) {});
 
 router.get('/continueSession', uauth.verify, function(req, res) {
-    xres.success.OK(res);
+    let nameSpace = "";
+    if (res.xuauth.session.data.corporate) //if it is true, the user is corporate
+    {
+        nameSpace = "corporate";
+    }
+    else //if false, the user is a consumer
+    {
+        nameSpace = "consumer";
+    }
+    xres.success.OK(res, {realm: nameSpace});
 });
 
 module.exports = router;
