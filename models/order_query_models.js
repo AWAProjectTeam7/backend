@@ -5,7 +5,7 @@ const queries = {
         database.query('SELECT user.name AS username, user.address AS useraddress, user.city AS usercity, user.phone AS usercontact, order.received_date, order.est_date, order.complete_date, order.cost, order.status, order.contents, restaurant.name AS venuename, restaurant.address AS venueaddress, restaurant.city AS venuecity FROM mydb.order, restaurant, user WHERE mydb.order.orderID=? AND mydb.order.restaurantID=restaurant.ID AND mydb.order.userID=user.ID', [orderID], callback);
     },
     getOrders: (userID, callback) => {
-        database.query('SELECT order.orderID, order.received_date, order.complete_date, order.cost, order.status, restaurant.name, restaurant.image FROM mydb.order, restaurant, user WHERE user.ID=? AND mydb.order.restaurantID=restaurant.ID AND mydb.order.userID=user.ID', [userID], callback);
+        database.query('SELECT order.orderID, order.received_date, order.complete_date, order.cost, order.status, restaurant.name, restaurant.image FROM mydb.order, restaurant, user WHERE user.ID=? AND mydb.order.restaurantID=restaurant.ID AND mydb.order.userID=user.ID ORDER BY mydb.order.received_date DESC', [userID], callback);
     },
     addOrder: (order={}, callback) => {
         database.query('INSERT INTO mydb.order (orderID, userID, restaurantID, received_date, status, cost, contents) VALUES(?, ?, ?, ?, ?, ?, ?);', [order.orderID, order.userID, order.restaurantID, order.received_date, order.status, order.cost, JSON.stringify(order.contents)], callback);
