@@ -9,7 +9,7 @@ const _debugFunctionsController = {
         else
         {
             //throw the request away
-            if (_debugFunctionsController._silentThrowAway)
+            if (_debugFunctionsController.silentThrowAway)
             {
                 //Silently throw the request away, time it out.
             }

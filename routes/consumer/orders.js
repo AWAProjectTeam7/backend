@@ -179,33 +179,25 @@ router.post('/', uauth.verify, userPermissionsHander(_routerPermissionTag), func
     }
 });
 
-router.get('/events/:orderKey', uauth.verify, userPermissionsHander(_routerPermissionTag), function(req, res, next) {
-    if (req.params.orderKey.length == 128 && req.params.orderKey)
-    {
-        queries.getOrderStatus(req.params.orderKey, (err, result)=>{
-            if (err)
-            {
-                xres.error.database(res, err);
-            }
-            else
-            {
-                result = result[0];
-                let response = {
-                    orderStatus: {
-                        receivedDate: result.received_date,
-                        estimatedDate: result.est_date,
-                        completedDate: result.complete_date,
-                        status: result.status
-                    }
-                };
-                xres.success.OK(res, response);
-            }
-        });
-    }
-    else
-    {
-        xres.fail.parameters(res);
-    }
+router.get('/events/:orderKey', function(req, res, next) {
+    queries.getOrderStatus(req.params.orderKey, (err, result)=>{
+        if (err)
+        {
+            xres.error.database(res, err);
+        }
+        else
+        {
+            result = result[0];
+            let response = {
+                orderStatus: {
+                    receivedDate: result.received_date,
+                    estimatedDate: result.est_date,
+                    completedDate: result.complete_date,
+                    status: result.status
+                }
+            };
+            xres.success.OK(res, response);
+        }
+    });
 });
-
 module.exports = router;

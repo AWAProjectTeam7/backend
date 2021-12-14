@@ -19,6 +19,12 @@ const queries = {
     getOrderStatus: (orderID, callback) => {
         database.query('SELECT order.received_date, order.est_date, order.complete_date, order.status FROM mydb.order WHERE mydb.order.orderID=?', [orderID], callback);
     },
+    getOrderStatus: (orderID, callback) => {
+        database.query('SELECT order.received_date, order.est_date, order.complete_date, order.status FROM mydb.order WHERE mydb.order.orderID=?', [orderID], callback);
+    },
+    setOrderStatus: (orderID, callback) => {
+        database.query('UPDATE mydb.order SET order.status=? WHERE mydb.order.orderID=?', [6, orderID], callback);
+    }
 };
 
 module.exports = queries;

@@ -23,10 +23,12 @@ The middleware then executes the API call, and returns the response, which can b
 
 ### How it should be used
 
-Using `xrequest.js`, the URL pointing to the routes definitions file shoud be loaded in as early as possible via the `xrequest.setSource();` function:
+Using `xrequest.js`, the URL pointing to the routes definitions file shoud be downloaded as early as possible via the `xrequest.downloadSource();` function, and saved to an easily accessible global variable:
 
-`xrequest.setSource("https://raw.githubusercontent.com/AWAProjectTeam7/backend/main/routes.json");`
-
+```js
+let routes = xrequest.downloadSource("https://raw.githubusercontent.com/AWAProjectTeam7/backend/main/routes.json");
+xrequest.setSource(routes);
+```
 For this example the loaded `routes.json` file has the following contents:
 
 ```json

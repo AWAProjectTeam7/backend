@@ -225,7 +225,7 @@ router.post('/:venueID/update', uauth.verify, userPermissionsHandler(_routerPerm
 });
 
 router.post('/:venueID/update-image', uauth.verify, userPermissionsHandler(_routerPermissionTag), singleFileUpload.single('image'), function(req, res, next) {
-    blobStorage("images", {
+    blobStorage.upload("images", {
         content: req.file.buffer,
         contentType: req.file.mimetype,
         extension: req.file.originalname.split(".")[1]

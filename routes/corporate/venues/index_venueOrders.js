@@ -53,8 +53,49 @@ router.get('/:venueID/orders/:orderKey', uauth.verify, userPermissionsHandler(_r
     });
 });
 
-router.get('/:venueID/orders/:orderKey/setState', debugFunctionsController.routeHandler, uauth.verify, userPermissionsHandler(_routerPermissionTag), function(req, res, next) {
-    //to do
+router.post('/:venueID/orders/:orderKey/setState', uauth.verify, userPermissionsHandler(_routerPermissionTag), function(req, res, next) {
+    queries.getVenueOrderState(req.params.venueID, req.params.orderKey, (err, result)=>{
+        if (err)
+        {
+            xres.service.database.error(res, err);
+        }
+        else
+        {
+            result = result[0];
+            if (result.status <= 5)
+            {
+                result.status++;
+                _response = {
+                    next: 0,
+                    status: result.status
+                };
+                if (result.status < 5)
+                {
+                    queries.setVenueOrderState(req.params.venueID, req.params.orderKey, result.status, (setErr, setResult)=>{
+                        if (setErr)
+                        {
+                            xres.service.database.error(res, setErr);
+                        }
+                        else
+                        {
+                            _response.next = _response.status + 1;
+                            xres.HTTP.success.OK(res, _response);
+                        }
+                    });
+                    
+                }
+                else
+                {
+                    _response.next = 0;
+                    xres.HTTP.success.OK(res, _response);
+                }
+            }
+            else
+            {
+                xres.HTTP.fail.parameters(res, "Order state can not be changed, as it has been delivered.");
+            }
+        }
+    });
 });
 
 module.exports = router;

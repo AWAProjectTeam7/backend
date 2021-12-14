@@ -11,8 +11,10 @@
     "get_venue_categories_and_pricing_list": "public/venues/categories",
 
     "get_consumer_order_by_ID": "consumer/orders/#",
+    "get_consumer_order_event_by_ID": "consumer/orders/events/#",
     "post_consumer_order": "consumer/orders",
     "get_consumer_order_history": "consumer/orders",
+    
     "get_consumer_account_data": "consumer/account",
     "post_consumer_account_data_change": "consumer/account/update",
 
@@ -27,6 +29,7 @@
 
     "get_corporate_order_by_venueID": "corporate/venues/#/orders",
     "get_corporate_orders_by_venueID_orderID": "corporate/venues/#/orders/#",
+    "post_corporate_orders_change_state_by_venueID_orderID": "corporate/venues/#/orders/#/setState",
 
     "get_corporate_venue_products_by_venueID": "corporate/venues/#/products",
     "post_corporate_venue_product_by_venueID": "corporate/venues/#/products",
